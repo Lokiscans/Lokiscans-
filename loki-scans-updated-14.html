@@ -1,0 +1,3145 @@
+<!DOCTYPE html>
+<!--
+=======================================================
+  YAPAY ZEKA İÇİN TALİMATLAR — DOSYAYI DEĞİŞTİRME
+=======================================================
+
+[ BÖLÜM EKLEME KURALLARI ]
+
+1. YENİ SERİ EKLERKEN:
+   - Gönderilen linklerin İLK linki kapaktır.
+   - Bu kapak linki: serinin "cover" alanına yazılır VE
+     her bölümün pages dizisinin ilk elemanı olarak eklenir.
+   - Geri kalan linkler sırayla bölüm sayfalarıdır.
+
+2. MEVCUT SERİYE BÖLÜM EKLERKEN:
+   - Kapak linki gönderilmez, mevcut "cover" değeri kullanılır.
+   - Gönderilen tüm linkler sayfa linkleridir, sırayla bölümlere bölünür.
+   - Her bölümün pages dizisinin ilk elemanı olarak mevcut kapak eklenir.
+
+3. BÖLÜM FORMAT AÇIKLAMASI:
+   - Linklerden sonra şu formatta bilgi gelir: "7-6-11 / 10 11 12. Bölüm"
+   - Soldaki sayılar her bölümün sayfa sayısıdır (tire ile ayrılır).
+   - Sağdaki sayılar bölüm numaralarıdır (boşlukla ayrılır).
+   - Örnek: "7-6-11 / 10 11 12. Bölüm"
+       → 10. Bölüm: 7 sayfa
+       → 11. Bölüm: 6 sayfa
+       → 12. Bölüm: 11 sayfa
+   - Linkleri bu sayfalara göre sırayla böl ve her bölüme ata.
+
+4. GÖRÜNTÜLENME (views) KURALI:
+   - Hiçbir serinin views değeri 0 olmamalıdır.
+   - Her serinin DÖRT ayrı views değeri olmalıdır: views, dailyViews, weeklyViews, monthlyViews.
+   - Hesaplama yöntemi:
+       → O serinin toplam bölüm sayısını say.
+       → 800 ile 1100 arasında rastgele bir sayı seç (5'in katı OLMAMALIDIR).
+         Örn: 847, 963, 1073 olabilir; 850, 900, 1000 olamaz.
+       → views (tüm zamanlar) = bölüm sayisi x secilen sayi
+       → monthlyViews = views'in %55 ile %75'i arasinda rastgele bir deger
+       → weeklyViews = monthlyViews'in %20 ile %35'i arasinda rastgele bir deger
+       → dailyViews = weeklyViews'in %10 ile %20'si arasinda rastgele bir deger
+   - monthlyViews ve views birbiriyle oranti olmalidir (aylik, toplamdan az).
+   - weeklyViews ve dailyViews tamamen BAGIMSIZ rastgele sayilardir,
+     bölüm sayisi veya diger views degerleriyle iliskisi olmaz.
+     Bunlar 500 ile 5000 arasinda rastgele secilir.
+   - !!!!! ZORUNLU KURAL !!!!!
+     Her serinin kendi icinde: dailyViews < weeklyViews < monthlyViews < views
+     (Gun < Hafta < Ay < Tum Zamanlar) — Bu siralama KESINLIKLE bozulmamalidir!
+     Eklemeden once mutlaka kontrol et.
+   - AYRICA: Tum periyotlarda (gunluk, haftalik, aylik, tum zamanlar) seriler arasindaki
+     SIRALAMA farkli olmalidir. Yani tum zamanlarda 1. olan seri gunlukte, haftalikta
+     veya aylikta farkli sirada olabilir. Bunu saglamak icin her serinin
+     dailyViews, weeklyViews, monthlyViews degerlerini birbirinden bagimsiz sec,
+     sadece kendi icinde kucukten buyuge dogru olmak sartiyla.
+   - Yeni bolum eklendiginde tum views degerlerini guncelle.
+   - !!!!! ZORUNLU !!!!! Bölüm ekleme veya güncelleme yapıldığında views HER ZAMAN yeniden hesaplanmalı ve güncellenmelidir. Atlama, unutma, geç bırakma — ANINDA güncelle!
+
+4.1 GÜNLÜK SIRALAMA (leaderboard "Gün" sekmesi) KURALI:
+   - Listede EN ÜSTTE en son bölüm yüklenen 5 seri gösterilir (tamamlanmış seriler hariç).
+   - Bu 5 seri kendi aralarında dailyViews değerine göre büyükten küçüğe sıralanır.
+   - Rastgele karıştırma YAPILMAZ; sıralama tamamen dailyViews'a göredir.
+
+4.2 TAMAMLANMIŞ SERİ SIRALAMA KURALI:
+   - status:'Tamamlandı' olan seriler Gün ve Hafta sıralamalarında GÖSTERİLMEZ.
+   - Sadece Ay ve Tüm Zamanlar sıralamalarında yer alırlar.
+
+5. TARİH:
+   - Eklenen bölümlerin tarihi her zaman o günün tarihi olmalıdır (YYYY-MM-DD formatında).
+
+6. SERİNİN DURUMU (STATUS) — ZORUNLU SORU:
+   - Yeni seri veya mevcut seriye bölüm eklerken, bölümleri yüklemeye BAŞLAMADAN ÖNCE
+     kullanıcıya şunu sor:
+     "Bu serinin durumu ne olacak? Seçenekler:
+       - Devam Ediyor
+       - Yetişildi
+       - Tamamlandı
+       - Sezon Finali"
+   - Kullanıcı cevap vermeden bölümleri ekleme!
+   - Mevcut durum değerleri:
+       → 'Devam Ediyor'  → seri hâlâ yayında
+       → 'Yetişildi'     → yayındaki son bölüme ulaşıldı
+       → 'Tamamlandı'    → seri bitti
+       → 'Sezon Finali'  → sezon bitti, devam belirsiz
+
+7. DOSYA YAPISI — ÇOKLU DOSYA SİSTEMİ (ÖNEMLİ):
+   - Bu site artık TEK dosya değil, çoklu dosya yapısında:
+       → index.html   : ana site (bu dosya)
+       → data.js      : TÜM seri/bölüm verisi burada tutulur (MANGA_DATA dizisi)
+       → seri/*.html  : her seri için otomatik üretilen, SEO amaçlı statik sayfa
+       → sitemap.xml  : arama motorları için otomatik üretilen site haritası
+       → generate.js  : Node.js scripti, data.js'ten seri/*.html ve sitemap.xml'i üretir
+   - VERİ HER ZAMAN data.js İÇİNE eklenir/güncellenir, index.html'e DEĞİL.
+   - YENİ SERİ eklendiğinde:
+       → data.js'teki MANGA_DATA dizisine yeni seri objesi eklenir
+       → generate.js çalıştırılınca seri/ klasörüne o serinin YENİ bir HTML dosyası
+         otomatik oluşturulur (dosya adı serinin id'siyle aynı olur)
+       → sitemap.xml da otomatik güncellenir, yeni seri linki eklenir
+   - MEVCUT SERİYE BÖLÜM eklendiğinde:
+       → data.js'teki o serinin "chapters" dizisine yeni bölüm eklenir
+       → generate.js tekrar çalıştırılınca SADECE o serinin seri/*.html dosyası
+         güncellenir (üzerine yeniden yazılır), diğer seri dosyalarına dokunulmaz
+       → Yeni dosya oluşturulmaz, sadece ilgili seri dosyası yenilenir
+   - Her değişiklikten sonra `node generate.js` çalıştırılmalı, aksi halde
+     seri/*.html ve sitemap.xml eski (güncel olmayan) halde kalır.
+   - Değişen/yeni dosyalar (index.html, data.js, sitemap.xml, seri/ klasörü)
+     kullanıcıya güncel haliyle (tercihen tek bir zip içinde) teslim edilmelidir,
+     kullanıcı bunu Netlify'a yükleyerek siteyi günceller.
+
+=======================================================
+-->
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="google-site-verification" content="d9NobV4BKtMDLXlC1SIWgsl_KY9UT9w-p9gfzXc-OBY" />
+<script>
+document.addEventListener('contextmenu',function(e){e.preventDefault();return false;},true);
+document.addEventListener('dragstart',function(e){e.preventDefault();return false;},true);
+</script>
+<script>
+</script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FT9J99LSVE"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-FT9J99LSVE');
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">LOKİ SCANS</title>
+<meta name="description" id="meta-desc" content="LOKİ SCANS - En güncel Türkçe manhwa çevirileri burada!">
+<link rel="canonical" id="canonical-link" href="">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getFirestore,collection,addDoc,query,orderBy,limit,onSnapshot,serverTimestamp,doc,setDoc,getDoc,deleteDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut,sendPasswordResetEmail}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+const _fc={apiKey:"AIzaSyCL4svmvg0nYnKWcXwQ-na_cFb60TaqUGo",authDomain:"loki-scans-c10f5.firebaseapp.com",projectId:"loki-scans-c10f5",storageBucket:"loki-scans-c10f5.firebasestorage.app",messagingSenderId:"952884567545",appId:"1:952884567545:web:6d283111beb111d7857128"};
+const _app=initializeApp(_fc);
+const _db=getFirestore(_app);
+const _auth=getAuth(_app);
+const _AVS=['🐺','🦊','🐉','⚔️','🌙','🔥','💀','🌸','🦋','👁️','🏹','🌊','⚡','🎭','🗡️','🌟','🐯','🦁','🧙','👻','🎪','🍀','🌹','🎯'];
+
+// ── Kimlik durumu: artık localStorage yerine Firebase Auth kullanılıyor ──
+let _authUser=null;   // Firebase Auth user object (giriş yapılmadıysa null)
+let _profile=null;    // {name, avatar} - Firestore users/{uid} dokümanından
+
+function _gu(){return _profile;}
+function _uid(){return _authUser?_authUser.uid:null;}
+function _esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function _ft(ts){if(!ts)return'';const d=ts.toDate?ts.toDate():new Date(ts);const diff=Math.floor((new Date()-d)/1000);if(diff<60)return'şimdi';if(diff<3600)return Math.floor(diff/60)+' dk önce';if(diff<86400)return Math.floor(diff/3600)+' sa önce';return Math.floor(diff/86400)+' gün önce';}
+function _upc(){
+  const c=document.getElementById('profile-chip');
+  const c2=document.getElementById('profile-chip-nav');
+  const html=_authUser&&_profile
+    ?`<span>${_profile.avatar}</span><span>${_esc(_profile.name)}</span>`
+    :_authUser
+    ?'<span>👤</span><span>Profil...</span>'
+    :'<span>👤</span><span>Giriş</span>';
+  if(c)c.innerHTML=html;
+  if(c2)c2.innerHTML=html;
+}
+function _authErrMsg(e){
+  const c=e&&e.code?e.code:'';
+  if(c.includes('email-already-in-use'))return'Bu e-posta zaten kayıtlı, giriş yapmayı dene.';
+  if(c.includes('invalid-email'))return'Geçersiz e-posta adresi.';
+  if(c.includes('wrong-password')||c.includes('invalid-credential'))return'E-posta veya şifre hatalı.';
+  if(c.includes('user-not-found'))return'Bu e-postayla bir hesap bulunamadı.';
+  if(c.includes('weak-password'))return'Şifre çok zayıf, en az 6 karakter kullan.';
+  if(c.includes('too-many-requests'))return'Çok fazla deneme yapıldı, biraz sonra tekrar dene.';
+  return'Bir hata oluştu, tekrar dene.';
+}
+
+// ── Giriş / Kayıt modalı ──
+window.openAuthModal=function(cb){
+  const ov=document.createElement('div');ov.className='modal-overlay';
+  let mode='login';
+  function render(){
+    ov.innerHTML=`<div class="modal-box">
+      <h3>${mode==='login'?'🔑 Giriş Yap':'✨ Hesap Oluştur'}</h3>
+      <input class="modal-input" id="_ae" type="email" placeholder="E-posta" autocomplete="email">
+      <input class="modal-input" id="_ap" type="password" placeholder="Şifre (en az 6 karakter)" autocomplete="${mode==='login'?'current-password':'new-password'}" style="margin-top:10px">
+      <div id="_aerr" style="font-size:12px;margin:8px 0;display:none"></div>
+      <button class="modal-btn" id="_asb">${mode==='login'?'Giriş Yap':'Hesap Oluştur'}</button>
+      <button class="modal-cancel" id="_aswitch" style="margin-top:8px">${mode==='login'?'Hesabın yok mu? Kayıt ol':'Zaten hesabın var mı? Giriş yap'}</button>
+      ${mode==='login'?'<button class="modal-cancel" id="_aforgot" style="margin-top:4px">Şifremi unuttum</button>':''}
+      <button class="modal-cancel" id="_acancel" style="margin-top:4px">İptal</button>
+    </div>`;
+    bind();
+  }
+  function bind(){
+    ov.querySelector('#_aswitch').addEventListener('click',()=>{mode=mode==='login'?'register':'login';render();});
+    ov.querySelector('#_acancel').addEventListener('click',()=>ov.remove());
+    const fg=ov.querySelector('#_aforgot');
+    if(fg)fg.addEventListener('click',async()=>{
+      const email=ov.querySelector('#_ae').value.trim();
+      const errEl=ov.querySelector('#_aerr');
+      if(!email){errEl.style.color='var(--accent)';errEl.textContent='Önce e-posta adresini yaz.';errEl.style.display='block';return;}
+      try{await sendPasswordResetEmail(_auth,email);errEl.style.color='#4caf50';errEl.textContent='Sıfırlama bağlantısı e-postana gönderildi.';errEl.style.display='block';}
+      catch(e){errEl.style.color='var(--accent)';errEl.textContent=_authErrMsg(e);errEl.style.display='block';}
+    });
+    ov.querySelector('#_asb').addEventListener('click',async()=>{
+      const email=ov.querySelector('#_ae').value.trim();
+      const pass=ov.querySelector('#_ap').value;
+      const errEl=ov.querySelector('#_aerr');const btn=ov.querySelector('#_asb');
+      errEl.style.display='none';errEl.style.color='var(--accent)';
+      if(!email||!pass){errEl.textContent='E-posta ve şifre gerekli.';errEl.style.display='block';return;}
+      if(mode==='register'&&pass.length<6){errEl.textContent='Şifre en az 6 karakter olmalı.';errEl.style.display='block';return;}
+      btn.disabled=true;btn.textContent='Bekleyin...';
+      try{
+        if(mode==='login')await signInWithEmailAndPassword(_auth,email,pass);
+        else await createUserWithEmailAndPassword(_auth,email,pass);
+        ov.remove();
+        if(cb)cb();
+      }catch(e){
+        errEl.textContent=_authErrMsg(e);
+        errEl.style.display='block';
+        btn.disabled=false;btn.textContent=mode==='login'?'Giriş Yap':'Hesap Oluştur';
+      }
+    });
+  }
+  render();
+  document.body.appendChild(ov);
+};
+
+// ── Kullanıcı adı / avatar profili (giriş yapılmış olmayı gerektirir) ──
+window.openProfileModal=function(cb){
+  if(!_authUser){openAuthModal(()=>{openProfileModal(cb);});return;}
+  let sa=(_profile&&_profile.avatar)||_AVS[0];
+  const ov=document.createElement('div');ov.className='modal-overlay';
+  ov.innerHTML=`<div class="modal-box"><h3>👤 Profilini Ayarla</h3>
+    <input class="modal-input" id="_mn" maxlength="20" placeholder="Kullanıcı adın..." value="${_esc(_profile?_profile.name:'')}">
+    <div id="_mnerr" style="color:var(--accent);font-size:12px;margin:-6px 0 10px;display:none"></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Avatar seç:</div>
+    <div class="avatar-grid">${_AVS.map(a=>`<div class="avatar-opt${a===sa?' selected':''}" data-av="${a}">${a}</div>`).join('')}</div>
+    <button class="modal-btn" id="_msb">Kaydet</button>
+    ${_profile?'<button class="modal-cancel" id="_mcb">İptal</button>':''}
+    <button class="modal-cancel" id="_mlogout">Çıkış yap</button></div>`;
+  document.body.appendChild(ov);
+  ov.querySelectorAll('.avatar-opt').forEach(el=>el.addEventListener('click',()=>{ov.querySelectorAll('.avatar-opt').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');sa=el.dataset.av;}));
+  ov.querySelector('#_msb').addEventListener('click',async()=>{
+    const nameInput=ov.querySelector('#_mn');const errEl=ov.querySelector('#_mnerr');const btn=ov.querySelector('#_msb');
+    const n=nameInput.value.trim();
+    errEl.style.display='none';nameInput.style.borderColor='';
+    if(!n){nameInput.style.borderColor='var(--accent)';return;}
+    if(n.length<2){errEl.textContent='Kullanıcı adı en az 2 karakter olmalı.';errEl.style.display='block';return;}
+    const key=n.toLowerCase();
+    const oldKey=_profile?_profile.name.toLowerCase():null;
+    const myUid=_authUser.uid;
+    try{
+      if(oldKey!==key){
+        btn.disabled=true;btn.textContent='Kontrol ediliyor...';
+        const ref=doc(_db,'usernames',key);
+        const snap=await getDoc(ref);
+        if(snap.exists()&&snap.data().uid!==myUid){
+          errEl.textContent='Bu kullanıcı adı zaten alınmış, başka bir isim dene.';
+          errEl.style.display='block';
+          btn.disabled=false;btn.textContent='Kaydet';
+          return;
+        }
+        await setDoc(ref,{uid:myUid,name:n,ts:serverTimestamp()});
+        if(oldKey){try{await deleteDoc(doc(_db,'usernames',oldKey));}catch(e){}}
+      }
+      await setDoc(doc(_db,'users',myUid),{name:n,avatar:sa},{merge:true});
+      _profile={name:n,avatar:sa};
+      ov.remove();_upc();if(cb)cb(_profile);
+    }catch(e){
+      errEl.textContent='Bir şeyler ters gitti, tekrar dene.';
+      errEl.style.display='block';
+      btn.disabled=false;btn.textContent='Kaydet';
+    }
+  });
+  const cb2=ov.querySelector('#_mcb');if(cb2)cb2.addEventListener('click',()=>ov.remove());
+  ov.querySelector('#_mlogout').addEventListener('click',async()=>{await signOut(_auth);ov.remove();});
+};
+
+// ── Auth durumu değiştiğinde profili yükle ──
+async function _loadProfile(uid){
+  try{const snap=await getDoc(doc(_db,'users',uid));_profile=snap.exists()?snap.data():null;}
+  catch(e){_profile=null;}
+}
+onAuthStateChanged(_auth,async(user)=>{
+  _authUser=user;
+  if(user){
+    await _loadProfile(user.uid);
+    if(!_profile)openProfileModal(()=>{}); // ilk girişte isim/avatar seçtir
+  }else{
+    _profile=null;
+  }
+  _upc();
+});
+
+let _cu=null;
+const ADMIN_UID='ZGTOwGK4BPUPz6AN2lRRPhFRSDm2';
+function _isAdmin(){return _uid()===ADMIN_UID;}
+window.toggleChat=function(){const p=document.getElementById('chat-panel');if(!p)return;const o=p.classList.contains('open');if(o){p.classList.remove('open');if(_cu){_cu();_cu=null;}}else{p.classList.add('open');_lc('chat-messages');}};
+function _lc(elId){
+  const el=document.getElementById(elId||'inline-chat-messages');
+  if(!el)return;
+  const q=query(collection(_db,'chat'),orderBy('ts','desc'),limit(60));
+  if(_cu)_cu();
+  _cu=onSnapshot(q,snap=>{
+    const msgs=[];snap.forEach(d=>msgs.unshift({id:d.id,...d.data()}));
+    el.innerHTML=msgs.length?msgs.map(m=>`<div class="chat-msg"><div class="chat-msg-avatar">${m.avatar||'👤'}</div><div class="chat-msg-body"><div class="chat-msg-name">${_esc(m.name)}${_isAdmin()&&m.uid?`<button class="admin-ban-btn" onclick="adminBanUser('${m.uid}','${_esc(m.name)}')" title="Banla">🚫</button>`:''}</div><div class="chat-msg-text">${_esc(m.text)}</div><div class="chat-msg-time">${_ft(m.ts)}${_isAdmin()?`<button class="admin-del-btn" onclick="adminDelChat('${m.id}')">🗑️</button>`:''}</div></div></div>`).join(''):'<div style="text-align:center;color:var(--muted);font-size:13px;padding:20px">Henüz mesaj yok 🎉</div>';
+    el.scrollTop=el.scrollHeight;
+  });
+}
+window.sendChatMsg=async function(){
+  if(!_authUser||!_profile){openProfileModal(()=>{});return;}
+  try{const banSnap=await getDoc(doc(_db,'banned',_uid()));if(banSnap.exists()){showToast('Hesabınız banlandı.');return;}}catch(e){}
+  const inp=document.getElementById('chat-input');const txt=inp.value.trim();
+  if(!txt)return;if(txt.length>300){if(typeof showToast==='function')showToast('Mesaj çok uzun!');return;}
+  inp.value='';
+  try{await addDoc(collection(_db,'chat'),{uid:_uid(),name:_profile.name,avatar:_profile.avatar,text:txt,ts:serverTimestamp()});}
+  catch(e){if(typeof showToast==='function')showToast('Gönderilemedi.');}
+};
+window.adminDelChat=async function(msgId){
+  if(!_isAdmin())return;
+  if(!confirm('Bu mesajı sil?'))return;
+  try{await deleteDoc(doc(_db,'chat',msgId));showToast('Mesaj silindi.');}
+  catch(e){showToast('Silinemedi.');}
+};
+window.adminDelComment=async function(ctx,cId){
+  if(!_isAdmin())return;
+  if(!confirm('Bu yorumu sil?'))return;
+  try{await deleteDoc(doc(_db,'comments_'+ctx,cId));showToast('Yorum silindi.');}
+  catch(e){showToast('Silinemedi.');}
+};
+window.adminBanUser=async function(uid,name){
+  if(!_isAdmin())return;
+  if(!confirm(name+' kullanıcısını banla?'))return;
+  try{
+    await setDoc(doc(_db,'banned',uid),{uid,name,ts:serverTimestamp()});
+    showToast(name+' banlandı.');
+  }catch(e){showToast('Banlanamadı.');}
+};
+window.submitComment=async function(ctx){
+  if(!_authUser||!_profile){openProfileModal(()=>{});return;}
+  try{const banSnap=await getDoc(doc(_db,'banned',_uid()));if(banSnap.exists()){showToast('Hesabınız banlandı.');return;}}catch(e){}
+  const ta=document.getElementById('comment-input-'+ctx);const txt=ta.value.trim();
+  if(!txt)return;if(txt.length>500){if(typeof showToast==='function')showToast('Yorum çok uzun!');return;}
+  ta.value='';
+  try{await addDoc(collection(_db,'comments_'+ctx),{uid:_uid(),name:_profile.name,avatar:_profile.avatar,text:txt,ts:serverTimestamp()});}
+  catch(e){if(typeof showToast==='function')showToast('Gönderilemedi.');}
+};
+const _REACTS=[{e:'👍',l:'Beğen'},{e:'😄',l:'Komik'},{e:'😍',l:'Bayıldım'},{e:'😮',l:'Şaşırdım'},{e:'😠',l:'Kızgın'},{e:'😢',l:'Üzücü'}];
+window.loadReactions=function(ctx){
+  const el=document.getElementById('reactions-'+ctx);if(!el)return;
+  onSnapshot(doc(_db,'reactions',ctx),snap=>{
+    const data=snap.exists()?snap.data():{};
+    const ur=localStorage.getItem('reaction_'+ctx)||null;
+    el.innerHTML=_REACTS.map(r=>`<button class="reaction-btn${ur===r.e?' active':''}" onclick="toggleReaction('${ctx}','${r.e}')"><span class="reaction-emoji">${r.e}</span><span class="reaction-count">${data[r.e]||0}</span><span class="reaction-label">${r.l}</span></button>`).join('');
+  });
+};
+window.toggleReaction=async function(ctx,emoji){
+  if(!_authUser||!_profile){openProfileModal(()=>{});return;}
+  const ref=doc(_db,'reactions',ctx);const prev=localStorage.getItem('reaction_'+ctx);
+  try{
+    const snap=await getDoc(ref);const data=snap.exists()?snap.data():{};const upd={};
+    if(prev&&prev!==emoji)upd[prev]=Math.max(0,(data[prev]||1)-1);
+    if(prev===emoji){upd[emoji]=Math.max(0,(data[emoji]||1)-1);localStorage.removeItem('reaction_'+ctx);}
+    else{upd[emoji]=(data[emoji]||0)+1;localStorage.setItem('reaction_'+ctx,emoji);}
+    await setDoc(ref,{...data,...upd},{merge:true});
+  }catch(e){}
+};
+
+// ── Yorumları yükle (gerçek zamanlı) ──
+const _commentUnsubs={};
+window.loadComments=function(ctx){
+  const listEl=document.getElementById('comments-list-'+ctx);
+  if(!listEl)return;
+  listEl.innerHTML='<div style="text-align:center;color:var(--muted);font-size:12px;padding:12px">Yorumlar yükleniyor...</div>';
+  if(_commentUnsubs[ctx])_commentUnsubs[ctx]();
+  const q=query(collection(_db,'comments_'+ctx),orderBy('ts','desc'),limit(50));
+  _commentUnsubs[ctx]=onSnapshot(q,snap=>{
+    if(snap.empty){listEl.innerHTML='<div style="text-align:center;color:var(--muted);font-size:13px;padding:20px">Henüz yorum yok. İlk yorumu sen yap! 💬</div>';return;}
+    listEl.innerHTML=snap.docs.map(d=>{
+      const m=d.data();
+      return`<div class="comment-item">
+        <div class="comment-avatar">${m.avatar||'👤'}</div>
+        <div class="comment-body">
+          <div class="comment-name">${_esc(m.name||'Misafir')}${_isAdmin()&&m.uid?`<button class="admin-ban-btn" onclick="adminBanUser('${m.uid}','${_esc(m.name)}')" title="Banla">🚫</button>`:''}</div>
+          <div class="comment-text">${_esc(m.text||'')}</div>
+          <div class="comment-time">${_ft(m.ts)}${_isAdmin()?`<button class="admin-del-btn" onclick="adminDelComment('${ctx}','${d.id}')">🗑️</button>`:''}</div>
+        </div>
+      </div>`;
+    }).join('');
+  },err=>{
+    listEl.innerHTML='<div style="text-align:center;color:var(--muted);font-size:12px;padding:12px">Yorumlar yüklenemedi.</div>';
+  });
+};
+document.addEventListener('DOMContentLoaded',()=>{
+  _upc();
+  const ci=document.getElementById('chat-input');
+  if(ci)ci.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChatMsg();}});
+  // Start inline chat automatically
+  _lc('inline-chat-messages');
+});
+</script>
+<style>
+/* ═══ CHAT & COMMENTS ═══ */
+.chat-fab{position:fixed;bottom:80px;right:16px;width:52px;height:52px;border-radius:50%;background:var(--accent);border:none;color:#fff;font-size:22px;cursor:pointer;z-index:200;box-shadow:0 4px 16px rgba(230,57,70,.5);display:flex;align-items:center;justify-content:center;transition:transform .2s}
+.chat-fab:hover{transform:scale(1.1)}
+.chat-panel{position:fixed;bottom:0;right:0;width:100%;max-width:380px;height:70vh;background:var(--bg2);border:1px solid var(--border);border-radius:14px 14px 0 0;z-index:300;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s ease;box-shadow:0 -8px 32px rgba(0,0,0,.5)}
+.chat-panel.open{transform:translateY(0)}
+.chat-panel-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.chat-panel-header h3{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px}
+.chat-close-btn{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1}
+.chat-messages{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.chat-msg{display:flex;gap:8px;align-items:flex-start}
+.chat-msg-avatar{font-size:24px;flex-shrink:0;width:32px;text-align:center}
+.chat-msg-body{flex:1;min-width:0}
+.chat-msg-name{font-size:11px;font-weight:800;color:var(--accent);margin-bottom:2px}
+.chat-msg-text{font-size:13px;line-height:1.5;background:var(--bg3);padding:8px 10px;border-radius:0 8px 8px 8px;word-break:break-word}
+.chat-msg-time{font-size:10px;color:var(--muted);margin-top:3px}
+.chat-input-row{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border);flex-shrink:0}
+.chat-input{flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 12px;font-family:'Nunito',sans-serif;font-size:13px;outline:none}
+.chat-input:focus{border-color:var(--accent)}
+.chat-send-btn{background:var(--accent);border:none;color:#fff;border-radius:8px;padding:9px 14px;cursor:pointer;font-size:16px}
+.profile-chip{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:700;transition:all .2s;flex-shrink:0}
+.profile-chip:hover{border-color:var(--accent)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;width:100%;max-width:340px}
+.modal-box h3{font-family:'Bebas Neue',sans-serif;font-size:20px;margin-bottom:16px;text-align:center}
+.modal-input{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 14px;font-family:'Nunito',sans-serif;font-size:14px;outline:none;margin-bottom:12px}
+.modal-input:focus{border-color:var(--accent)}
+.avatar-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px}
+.avatar-opt{font-size:28px;text-align:center;cursor:pointer;padding:4px;border-radius:8px;border:2px solid transparent;transition:all .15s;line-height:1.3}
+.avatar-opt.selected,.avatar-opt:hover{border-color:var(--accent);background:var(--bg3)}
+.modal-btn{width:100%;background:var(--accent);border:none;color:#fff;padding:11px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer}
+.modal-cancel{width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);padding:9px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px}
+.comments-section{margin-top:24px;padding-bottom:20px}
+.comment-input-row{display:flex;gap:8px;margin-bottom:16px;align-items:flex-start}
+.comment-textarea{flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-family:'Nunito',sans-serif;font-size:13px;outline:none;resize:none;height:60px}
+.comment-textarea:focus{border-color:var(--accent)}
+.comment-submit-btn{background:var(--accent);border:none;color:#fff;border-radius:8px;padding:10px 14px;cursor:pointer;font-size:13px;font-weight:800;font-family:'Nunito',sans-serif;white-space:nowrap;align-self:flex-end}
+.comment-item{display:flex;gap:8px;background:rgba(26,26,38,.65);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.comment-avatar{font-size:22px;flex-shrink:0;width:32px;text-align:center}
+.comment-body{flex:1;min-width:0}
+.comment-name{font-size:12px;font-weight:800;color:var(--accent)}
+.comment-text{font-size:13px;line-height:1.5;margin-top:3px;word-break:break-word}
+.comment-time{font-size:10px;color:var(--muted);margin-top:4px}
+.reactions-row{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.reaction-btn{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 8px;font-size:22px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:'Nunito',sans-serif;color:var(--text)}
+.reaction-btn:hover,.reaction-btn.active{border-color:var(--accent);background:rgba(230,57,70,.15)}
+.reaction-emoji{font-size:24px;line-height:1}
+.reaction-count{font-size:14px;font-weight:800;color:var(--text)}
+.reaction-label{font-size:11px;color:var(--muted);font-weight:600}
+.reactions-heading{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.5px;text-align:center;margin-bottom:12px;color:var(--text)}
+.hamburger-btn{background:none;border:none;color:var(--text);font-size:22px;cursor:pointer;padding:4px 8px;flex-shrink:0;line-height:1}
+.site-menu-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none}
+.site-menu-overlay.open{display:block}
+.site-menu-panel{position:fixed;top:0;left:0;bottom:0;width:80%;max-width:300px;background:var(--bg2);border-right:1px solid var(--border);padding:20px 16px;box-shadow:8px 0 24px rgba(0,0,0,.5);transform:translateX(-100%);transition:transform .25s ease}
+.site-menu-overlay.open .site-menu-panel{transform:translateX(0)}
+.site-menu-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;margin-bottom:16px}
+.site-menu-section{display:flex;flex-direction:column;gap:2px}
+.site-menu-section a{padding:12px 10px;border-radius:8px;font-size:15px;font-weight:700;color:var(--text)}
+.site-menu-section a:hover{background:var(--bg3)}
+.about-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px}
+.about-box p{margin-bottom:14px;line-height:1.7;font-size:14px}
+.about-box p:last-child{margin-bottom:0}
+.admin-del-btn{background:none;border:none;cursor:pointer;font-size:13px;opacity:.5;padding:0 4px;transition:opacity .2s;vertical-align:middle;margin-left:6px}
+.admin-del-btn:hover{opacity:1}
+.admin-ban-btn{background:none;border:none;cursor:pointer;font-size:12px;opacity:.5;padding:0 3px;transition:opacity .2s;vertical-align:middle;margin-left:4px}
+.admin-ban-btn:hover{opacity:1}
+</style>
+<style>
+:root{--bg:#0d0d12;--bg2:#16161f;--bg3:#1e1e2a;--card:#1a1a26;--accent:#e63946;--accent2:#ff6b6b;--text:#e8e8f0;--muted:#888899;--border:#2a2a3a;--success:#2ec4b6;--gold:#d4af37;--gold2:#f0d889;--emerald:#1f8a5f;--emerald2:#2ecc8f;--radius:10px}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth}
+body{background:var(--bg) url('https://i.ibb.co/Rkv9d6zd/Chat-GPT-mage-1-Tem-2026-16-22-57.png') no-repeat center top fixed;background-size:cover;background-position:center center;color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:rgba(13,13,18,.72);z-index:-1;pointer-events:none}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+.page{display:none}
+.page.active{display:block}
+/* HEADER */
+.site-header{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,24,19,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--emerald);padding:0 16px;height:60px;display:flex;align-items:center;gap:12px;transition:transform .3s ease}
+.site-header.hidden{transform:translateY(-100%)}
+body{padding-top:60px}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent);letter-spacing:1px;white-space:nowrap;flex-shrink:0;cursor:pointer;line-height:1}
+.logo span{color:var(--text)}
+.logo small{display:block;font-size:9px;color:var(--muted);letter-spacing:.5px;font-family:'Nunito',sans-serif;font-weight:700;text-transform:uppercase;margin-top:-2px}
+.search-wrap{flex:1;position:relative;max-width:400px}
+.search-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 14px 8px 36px;color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.search-input:focus{border-color:var(--accent)}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;pointer-events:none}
+.search-results{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);max-height:320px;overflow-y:auto;z-index:200;display:none}
+.search-results.show{display:block}
+.search-item{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border)}
+.search-item:last-child{border-bottom:none}
+.search-item:hover{background:var(--card)}
+.search-item img{width:36px;height:54px;object-fit:cover;border-radius:4px;flex-shrink:0}
+.search-item-title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.search-item-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.nav-links{display:flex;gap:4px;align-items:center;flex-shrink:0}
+.nav-links a{padding:6px 10px;border-radius:6px;font-size:13px;font-weight:700;color:var(--muted);transition:all .2s;white-space:nowrap;cursor:pointer}
+.nav-links a:hover,.nav-links a.active{color:var(--text);background:var(--bg3)}
+/* LAYOUT */
+.container{max-width:1100px;margin:0 auto;padding:0 14px}
+.section-title{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.section-title h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--text)}
+.section-title .line{flex:1;height:1px;background:var(--border)}
+.section-title a{font-size:12px;color:var(--accent);font-weight:700;padding:4px 10px;border:1px solid var(--accent);border-radius:20px;transition:all .2s;cursor:pointer}
+.section-title a:hover{background:var(--accent);color:white}
+/* CARDS */
+.manga-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px}
+/* SERIES 2-COL CARD WITH CHAPTER LIST */
+.series-grid-2col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.series-grid-2col>.series-card-big{min-width:0}
+/* TOP CAROUSEL */
+.top-carousel{position:relative;width:100%;margin-bottom:20px;overflow:hidden}
+.top-carousel-track{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:4px 4px 8px;cursor:grab}
+.top-carousel-track::-webkit-scrollbar{display:none}
+.top-carousel-track.dragging{cursor:grabbing;scroll-behavior:auto}
+.top-carousel-slide{flex:0 0 72%;max-width:280px;scroll-snap-align:start;border-radius:14px;overflow:hidden;position:relative;aspect-ratio:2/3;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.5);transition:transform .2s}
+.top-carousel-slide:hover{transform:translateY(-4px)}
+.top-carousel-slide img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+.top-carousel-slide .tc-title{position:absolute;bottom:0;left:0;right:0;z-index:2;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.5px;padding:32px 12px 12px;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.4) 60%,transparent 100%)}
+.top-carousel-slide .tc-genres{font-size:10px;font-weight:700;color:rgba(255,255,255,.7);margin-top:2px;font-family:'Nunito',sans-serif}
+.top-carousel-btn{display:none}
+.top-carousel-dots{display:none}
+/* CHAT RULES CARD */
+.rules-card{background:rgba(22,22,31,.65);backdrop-filter:blur(4px);border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:var(--radius);padding:18px;margin-bottom:24px}
+.rules-card h3{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:var(--gold2);margin-bottom:12px;text-shadow:0 0 12px rgba(212,175,55,.35)}
+.rules-card ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+.rules-card li{font-size:13px;line-height:1.6;color:var(--text)}
+.rules-card li strong{color:var(--emerald2)}
+.support-banner{background:linear-gradient(135deg,rgba(230,57,70,.12),rgba(22,22,31,.65));backdrop-filter:blur(4px);border:1px solid var(--border);border-radius:var(--radius);padding:22px 18px;margin-bottom:24px;text-align:center;overflow:hidden;position:relative}
+.support-banner::before{content:'';position:absolute;top:-40%;left:-10%;width:120%;height:6px;background:linear-gradient(90deg,var(--accent),var(--gold),var(--emerald2),var(--accent));filter:blur(1px)}
+.support-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(230,57,70,.15);border:1px solid var(--accent);color:var(--accent2);font-size:11px;font-weight:800;letter-spacing:.5px;padding:5px 14px;border-radius:20px;margin-bottom:14px}
+.support-banner h3{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.5px;color:var(--text);margin-bottom:8px}
+.support-banner h3 span{color:var(--accent2)}
+.support-banner h3 span.ul{color:var(--accent2);text-decoration:underline;text-decoration-color:var(--accent2);text-decoration-thickness:2px}
+.support-banner p{font-size:13px;line-height:1.6;color:var(--muted);max-width:480px;margin:0 auto 18px}
+.support-banner p strong{color:var(--gold2)}
+.support-mock{max-width:380px;margin:0 auto;background:#fff;border-radius:12px;padding:14px 14px 12px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.support-mock-bar{display:flex;align-items:center;gap:6px;background:#f1f3f4;border-radius:20px;padding:6px 12px;margin-bottom:14px}
+.support-mock-bar .dot{width:7px;height:7px;border-radius:50%}
+.support-mock-bar span{font-size:10px;color:#5f6368;margin-left:4px}
+.support-google-logo{text-align:center;font-family:Arial,sans-serif;font-weight:700;font-size:22px;margin-bottom:10px}
+.support-mock-search{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #dfe1e5;border-radius:24px;padding:9px 14px;margin-bottom:10px;box-shadow:0 1px 6px rgba(32,33,36,.1)}
+.support-mock-search input{border:none;outline:none;font-size:14px;font-weight:700;color:#202124;width:100%;background:transparent}
+.support-mock-result{display:flex;align-items:center;justify-content:space-between;border:1px solid #e63946;border-radius:8px;padding:9px 12px;background:#fff5f6}
+.support-mock-result .l{display:flex;align-items:center;gap:8px}
+.support-mock-result .av{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.support-mock-result .nm{font-size:12px;font-weight:800;color:#202124;line-height:1.3}
+.support-mock-result .sub{font-size:10px;color:var(--accent);font-weight:700;line-height:1.3}
+.support-mock-result .go{font-size:10px;font-weight:800;color:var(--emerald);text-align:center;line-height:1.5;white-space:nowrap}
+.rules-card .rules-footer{margin-top:14px;text-align:center;font-size:12px;color:var(--gold);font-style:italic}
+/* FEATURED TABS */
+.featured-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.featured-tab{padding:6px 14px;border-radius:20px;border:1px solid var(--border);font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .2s;background:var(--bg2)}
+.featured-tab:hover,.featured-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+/* TOP SERIES LEADERBOARD */
+.leaderboard-tabs{display:flex;gap:6px;margin-bottom:14px}
+.leaderboard-tab{flex:1;text-align:center;padding:8px;border-radius:8px;border:1px solid var(--border);font-size:12px;font-weight:800;color:var(--muted);cursor:pointer;transition:all .2s;background:var(--bg2)}
+.leaderboard-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.leaderboard-item{display:flex;align-items:center;gap:14px;background:rgba(20,20,32,.55);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.leaderboard-item:hover{background:rgba(30,30,50,.75);border-color:rgba(230,57,70,.25)}
+.leaderboard-rank{font-family:'Bebas Neue',sans-serif;font-size:24px;width:32px;text-align:center;color:var(--muted);flex-shrink:0}
+.leaderboard-item:nth-child(1) .leaderboard-rank{color:#ffd700}
+.leaderboard-item:nth-child(2) .leaderboard-rank{color:#c0c0c0}
+.leaderboard-item:nth-child(3) .leaderboard-rank{color:#cd7f32}
+.leaderboard-item img{width:42px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0}
+.leaderboard-info{flex:1;min-width:0}
+.leaderboard-info .lb-title{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.leaderboard-info .lb-views{font-size:11px;color:var(--muted);margin-top:2px}
+.series-card-big{cursor:pointer;background:rgba(20,20,32,.55);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);padding:10px;box-shadow:0 4px 16px rgba(0,0,0,.4);transition:border-color .2s,box-shadow .2s}
+.series-card-big:hover{border-color:rgba(230,57,70,.3);box-shadow:0 8px 28px rgba(230,57,70,.2)}
+.series-card-big .cover-wrap{position:relative;aspect-ratio:2/3;overflow:hidden;border-radius:calc(var(--radius) - 2px);margin-bottom:8px}
+.series-card-big .cover-wrap img{width:100%;height:100%;object-fit:cover;object-position:center center}
+.series-card-big .series-title-big{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.5px;margin-bottom:8px;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.series-chapter-row{display:flex;align-items:center;justify-content:space-between;background:rgba(20,20,32,.5);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:9px 12px;margin-bottom:6px;transition:all .2s;-webkit-tap-highlight-color:transparent;}
+.series-chapter-row:hover{background:rgba(30,30,50,.75);border-color:rgba(230,57,70,.2)}
+.series-chapter-row .ch-title{font-size:13px;font-weight:700;white-space:nowrap;display:flex;align-items:center;}
+.series-chapter-row .ch-date{font-size:11px;color:var(--muted)}
+@media(max-width:500px){.series-card-big .series-title-big{font-size:15px}.series-chapter-row{padding:7px 10px}.series-chapter-row .ch-title{font-size:12px}.series-chapter-row .ch-date{font-size:10px}}
+.manga-card{display:block;background:rgba(20,20,32,.55);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s;cursor:pointer;position:relative;box-shadow:0 4px 16px rgba(0,0,0,.4)}
+.manga-card:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(230,57,70,.3);border-color:rgba(230,57,70,.35)}
+.manga-card .cover-wrap{position:relative;aspect-ratio:2/3;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.manga-card .cover-wrap img{width:100%;height:100%;object-fit:cover;object-position:center center;transition:transform .3s}
+.manga-card:hover .cover-wrap img{transform:scale(1.05)}
+.status-badge{position:absolute;top:0;left:0;width:90px;height:90px;overflow:hidden;pointer-events:none}
+.status-badge span{position:absolute;top:16px;left:-30px;width:105px;text-align:center;font-size:8px;font-weight:900;padding:2px 0;color:white;letter-spacing:.6px;transform:rotate(-45deg);background:#e63946}
+.status-badge.completed span{background:#2ec4b6}
+.status-badge.caught span{background:#3a86ff}
+.status-badge.seasonend span{background:#ff9f1c}
+.bookmark-btn{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);border:none;color:var(--muted);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.bookmark-btn.saved{color:var(--accent)}
+.bookmark-btn:hover{background:rgba(0,0,0,.85);color:var(--accent)}
+.card-info{padding:8px 10px 10px}
+.card-title{font-size:12px;font-weight:800;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:4px}
+.card-chapter{font-size:11px;color:var(--accent);font-weight:700}
+.card-date{font-size:10px;color:var(--muted);margin-top:2px}
+.new-badge{display:inline-block;background:linear-gradient(90deg,#e63946,#ff6b35);color:#fff;font-size:10px;font-weight:900;padding:2px 7px;border-radius:4px;letter-spacing:.5px;animation:newpulse 1.2s ease-in-out infinite;margin-left:12px;}
+@keyframes newpulse{0%,100%{box-shadow:0 0 6px rgba(230,57,70,.7);}50%{box-shadow:0 0 14px rgba(255,107,53,1);}}
+.ch-new-badge{display:inline-flex;align-items:center;background:linear-gradient(90deg,#e63946,#ff6b35);color:#fff;font-size:10px;font-weight:900;padding:1px 6px;border-radius:4px;letter-spacing:.5px;animation:newpulse 1.2s ease-in-out infinite;margin-left:40px;vertical-align:middle;}
+/* GENRE PILLS */
+.genre-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.genre-pill{padding:5px 14px;border-radius:20px;border:1px solid var(--border);font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .2s;background:var(--bg2)}
+.genre-pill:hover,.genre-pill.active{background:var(--accent);border-color:var(--accent);color:white}
+/* UPDATED LIST */
+.updated-list{display:flex;flex-direction:column;gap:10px}
+.updated-item{display:flex;gap:12px;background:rgba(20,20,32,.55);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.07);border-radius:var(--radius);padding:10px;cursor:pointer;transition:all .2s;align-items:center}
+.updated-item:hover{background:rgba(30,30,50,.75);border-color:rgba(230,57,70,.25)}
+.updated-item img{width:48px;height:68px;object-fit:cover;border-radius:6px;flex-shrink:0}
+.updated-info{flex:1;min-width:0}
+.updated-title{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.updated-chapter{font-size:12px;color:var(--accent);font-weight:700;margin-top:3px}
+.updated-date{font-size:11px;color:var(--muted);margin-top:2px}
+.updated-genres{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.genre-tag{font-size:10px;padding:1px 6px;border-radius:4px;background:var(--bg3);color:var(--muted);font-weight:600}
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--bg2) 0%,var(--bg3) 100%);border-bottom:1px solid var(--border);padding:24px 0;margin-bottom:28px}
+.hero-inner{display:flex;align-items:center;gap:20px}
+.hero-cover{width:110px;flex-shrink:0;border-radius:var(--radius);overflow:hidden;box-shadow:0 8px 30px rgba(230,57,70,.3)}
+.hero-cover img{width:100%}
+.hero-badge{display:inline-block;background:var(--accent);color:white;font-size:10px;font-weight:800;padding:2px 8px;border-radius:4px;margin-bottom:8px;letter-spacing:.5px}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;line-height:1.1;margin-bottom:8px}
+.hero-desc{font-size:12px;color:var(--muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:12px}
+.hero-btn{display:inline-block;background:var(--accent);color:white;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:800;transition:opacity .2s;cursor:pointer;border:none;font-family:'Nunito',sans-serif}
+.hero-btn:hover{opacity:.85}
+.stats-row{display:flex;gap:12px;font-size:11px;color:var(--muted);margin-bottom:8px}
+section{padding:20px 0}
+/* DETAIL */
+.manga-detail-top{display:flex;gap:20px;margin-bottom:24px}
+.manga-detail-cover{width:130px;flex-shrink:0;border-radius:var(--radius);overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.manga-detail-cover img{width:100%}
+.manga-detail-info{flex:1;min-width:0}
+.manga-detail-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;margin-bottom:8px;line-height:1.1}
+.original-badge{display:inline-block;background:linear-gradient(135deg,#7b2ff7,#2196f3);color:#fff;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;letter-spacing:1px;margin-bottom:8px;font-family:'Nunito',sans-serif}
+.manga-detail-meta{font-size:12px;color:var(--muted);margin-bottom:6px}
+.manga-detail-meta strong{color:var(--text)}
+.genre-list{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.genre-tag-lg{font-size:11px;padding:3px 10px;border-radius:6px;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-weight:700}
+.manga-detail-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.btn-primary{background:var(--accent);color:white;border:none;padding:9px 18px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:opacity .2s}
+.btn-primary:hover{opacity:.85}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);padding:9px 18px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-outline.saved{border-color:var(--accent);color:var(--accent)}
+.manga-desc{font-size:13px;color:var(--muted);line-height:1.7;background:rgba(22,22,31,.65);backdrop-filter:blur(4px);border-radius:var(--radius);padding:14px;margin-bottom:20px;border:1px solid var(--border)}
+/* CHAPTERS */
+.chapter-list{display:flex;flex-direction:column;gap:6px}
+.prev-chapters-box{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-left:4px solid var(--gold2);border-radius:var(--radius);padding:14px 16px;margin:16px 0}
+.prev-chapters-icon{font-size:24px;flex-shrink:0}
+.prev-chapters-text{flex:1}
+.prev-chapters-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.5px;color:var(--gold2);margin-bottom:3px}
+.prev-chapters-desc{font-size:12px;color:var(--muted);line-height:1.5}
+.prev-chapters-btn{flex-shrink:0;background:var(--gold2);color:#111;font-weight:800;font-size:12px;padding:8px 14px;border-radius:8px;text-decoration:none;white-space:nowrap}
+.chapter-item{display:flex;align-items:center;justify-content:space-between;background:rgba(20,20,32,.55);backdrop-filter:blur(10px);border-radius:8px;padding:12px 14px;cursor:pointer;transition:all .2s;border:1px solid rgba(255,255,255,.07);-webkit-tap-highlight-color:transparent;}
+.chapter-item:hover{background:rgba(30,30,50,.75);border-color:rgba(230,57,70,.25)}
+.chapter-item.read{opacity:.55}
+.chapter-item-title{font-size:13px;font-weight:700}
+.chapter-item-date{font-size:11px;color:var(--muted);margin-top:2px}
+.chapter-item-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.read-badge{font-size:10px;color:var(--success);font-weight:700}
+/* READER */
+#page-reader{background:var(--bg);min-height:100vh}
+.reader-header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:10px}
+.reader-header-info{flex:1;min-width:0}
+.reader-header-title{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reader-header-chapter{font-size:11px;color:var(--accent);font-weight:700}
+.reader-pages{max-width:800px;margin:0 auto;padding-bottom:120px}
+.reader-pages img{width:100%;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.reader-nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:8px;z-index:100}
+.reader-nav button{flex:1;min-width:0;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 6px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reader-nav button:hover{background:var(--accent);border-color:var(--accent)}
+.reader-nav button:disabled{opacity:.3;cursor:not-allowed}
+.reader-nav button:disabled:hover{background:var(--bg3);border-color:var(--border)}
+.reader-chapter-select{flex:1;min-width:0;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 4px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:12px;outline:none;cursor:pointer}
+/* FILTER */
+.filter-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.filter-select{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;outline:none;cursor:pointer}
+/* MISC */
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-state .icon{font-size:40px;margin-bottom:12px}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:30px;font-size:13px;font-weight:700;z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap}
+.toast.show{opacity:1}
+.home-page-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px 13px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.home-page-btn:hover:not(:disabled){background:var(--accent);border-color:var(--accent);color:#fff}
+.home-page-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.home-page-btn:disabled{opacity:.3;cursor:not-allowed}
+.site-footer{background:rgba(22,22,31,.65);backdrop-filter:blur(4px);border-top:1px solid var(--border);padding:20px 16px;text-align:center;font-size:12px;color:var(--muted);margin-top:40px}
+.back-btn{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;font-weight:700;padding:6px 10px;border-radius:8px;transition:all .2s;background:transparent;border:none;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:10px}
+.back-btn:hover{color:var(--text);background:var(--bg3)}
+.stat-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);background:var(--bg3);padding:3px 8px;border-radius:20px}
+.end-card{background:var(--bg2);border-top:1px solid var(--border);padding:30px 20px;text-align:center;margin-top:20px}
+.end-card h3{font-family:'Bebas Neue',sans-serif;font-size:22px;margin-bottom:8px}
+.end-card p{font-size:13px;color:var(--muted);margin-bottom:16px}
+.end-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.end-btn{padding:9px 20px;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;border:none;font-family:'Nunito',sans-serif}
+/* FREE BADGE */
+.free-banner{background:linear-gradient(90deg,var(--accent),#ff6b35);color:white;text-align:center;padding:8px;font-size:12px;font-weight:800;letter-spacing:.5px}
+@media(max-width:500px){.hero-title{font-size:22px}.manga-grid{grid-template-columns:repeat(3,1fr);gap:10px}.nav-links a{padding:5px 7px;font-size:11px}.logo{font-size:18px}}
+
+/* ═══ PC / DESKTOP LAYOUT ═══ */
+@media(min-width:900px){
+  /* Header */
+  .site-header{height:66px;padding:0 32px;gap:20px}
+  .logo{font-size:26px}
+  .search-wrap{max-width:500px}
+  .search-input{font-size:15px;padding:10px 16px 10px 40px}
+  .nav-links a{padding:8px 14px;font-size:14px}
+
+  /* Container */
+  .container{padding:0 32px}
+
+  /* Carousel: yatay kaydırmalı, PC'de daha büyük kartlar */
+  .top-carousel-slide{
+    flex:0 0 260px;
+    max-width:260px;
+  }
+  .top-carousel-slide .tc-title{font-size:20px}
+  .top-carousel-track{gap:16px;padding:4px 4px 10px}
+  .top-carousel-slide .tc-title{font-size:32px;padding:24px 28px}
+
+  /* Ana sayfa iki sütun layout */
+  #page-home .home-pc-layout{
+    display:grid;
+    grid-template-columns:1fr 320px;
+    gap:28px;
+    align-items:start;
+  }
+
+  /* Sol: Seriler grid 4 sütun */
+  .series-grid-2col{
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+  }
+
+  /* Manga grid daha fazla kart */
+  .manga-grid{
+    grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+    gap:18px;
+  }
+
+  /* Kart boyutları */
+  .card-title{font-size:13px}
+  .card-chapter{font-size:12px}
+
+  /* Seri detay */
+  .manga-detail-top{gap:30px}
+  .manga-detail-cover{width:180px}
+  .manga-detail-title{font-size:32px}
+
+  /* Leaderboard sidebar */
+  .leaderboard-tab{font-size:13px;padding:10px}
+  .leaderboard-item{padding:12px 14px}
+  .lb-title{font-size:14px}
+
+  /* Section başlıkları */
+  .section-title h2{font-size:26px}
+
+  /* Chat kutusu daha küçük */
+  #inline-chat-messages{height:260px}
+
+  /* Footer */
+  .site-footer{font-size:13px;padding:24px 32px}
+
+  /* Seriler sayfası */
+  #page-list .container{padding-top:28px}
+  .filter-bar{gap:12px}
+  .filter-select{font-size:13px;padding:9px 16px}
+
+  /* Detay sayfa chapter list */
+  .chapter-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .chapter-item{padding:14px 16px}
+  .chapter-item-title{font-size:14px}
+
+  /* Pagination */
+  .home-page-btn{padding:9px 16px;font-size:14px}
+}
+
+@media(min-width:1200px){
+  .container{max-width:1280px}
+  .series-grid-2col{grid-template-columns:repeat(5,1fr)}
+  .manga-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+  .top-carousel-slide{flex:0 0 300px;max-width:300px}
+  .chapter-list{grid-template-columns:1fr 1fr 1fr}
+}
+
+.nav-discord{color:#5865F2!important;display:none}
+@media(min-width:900px){
+  .nav-discord{display:block}
+  #profile-chip-nav{display:flex}
+}
+
+/* ═══ BACK TO TOP BUTTON ═══ */
+#back-to-top-btn{
+  position:fixed;bottom:80px;right:16px;
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(230,57,70,.9);
+  border:none;color:#fff;font-size:20px;
+  cursor:pointer;z-index:199;
+  box-shadow:0 4px 16px rgba(230,57,70,.5);
+  opacity:0;pointer-events:none;
+  transition:opacity .3s,transform .2s;
+  display:flex;align-items:center;justify-content:center;
+}
+#back-to-top-btn.visible{opacity:1;pointer-events:auto;}
+#back-to-top-btn:hover{transform:scale(1.1)}
+
+/* ═══ AUTO SCROLL BAR ═══ */
+#autoscroll-bar{
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(13,13,20,.92);
+  backdrop-filter:blur(12px);
+  border-top:1px solid rgba(255,255,255,.1);
+  padding:8px 16px;
+  display:flex;align-items:center;gap:10px;
+  z-index:150;
+  transition:opacity .3s;
+}
+#autoscroll-bar.active .as-toggle{background:var(--accent);color:#fff}
+.as-toggle{
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+  color:var(--text);border-radius:8px;padding:6px 12px;
+  font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;
+  cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0;
+}
+.as-range{flex:1;accent-color:var(--accent);cursor:pointer;height:4px}
+.as-val{font-size:11px;color:var(--muted);font-weight:700;white-space:nowrap;min-width:48px}
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<!-- BACK TO TOP -->
+<button id="back-to-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Yukarı çık">↑</button>
+
+<!-- AUTO SCROLL BAR -->
+<div id="autoscroll-bar" style="display:none">
+  <button class="as-toggle" onclick="toggleAutoScroll()" title="Otomatik Kaydırma">▶ Oto</button>
+  <input type="range" min="0.5" max="8" step="0.5" value="3" oninput="setAutoScrollSpeed(this.value)" class="as-range">
+  <span class="as-val"><span id="autoscroll-speed-val">3</span> px/s</span>
+</div>
+
+
+
+<!-- HEADER -->
+<header class="site-header">
+  <button class="hamburger-btn" onclick="toggleSiteMenu()" aria-label="Menü">☰</button>
+  <a class="logo" href="/" onclick="event.preventDefault();showPage('home')"><img src="https://i.ibb.co/p6tFVVz7/1781824789320.png" alt="" style="height:38px;width:auto;object-fit:contain;"></a>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="searchInput" type="text" placeholder="Manhwa ara...">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+  <nav class="nav-links">
+    <a id="nav-home" class="active" href="/" onclick="event.preventDefault();showPage('home')">Ana Sayfa</a>
+    <a id="nav-list" href="/?sayfa=seriler" onclick="event.preventDefault();showPage('list')">Seriler</a>
+    <a id="nav-bookmarks" href="/?sayfa=kaydedilenler" onclick="event.preventDefault();showPage('bookmarks')">♥ Kaydet</a>
+    <a href="https://discord.gg/2BvFugBMaJ" target="_blank" rel="noopener" class="nav-discord">💬 Discord</a>
+  </nav>
+  <div class="profile-chip" id="profile-chip-nav" onclick="openProfileModal(null)" style="flex-shrink:0"><span>👤</span><span>Giriş</span></div>
+</header>
+
+<div class="site-menu-overlay" id="site-menu-overlay" onclick="if(event.target===this)toggleSiteMenu()">
+  <div class="site-menu-panel">
+    <button class="site-menu-close" onclick="toggleSiteMenu()" aria-label="Kapat">✕</button>
+    <div class="site-menu-section">
+      <a href="/" onclick="event.preventDefault();toggleSiteMenu();showPage('home')">Ana Sayfa</a>
+      <a href="/?sayfa=seriler" onclick="event.preventDefault();toggleSiteMenu();showPage('list')">Seriler</a>
+      <a href="/?sayfa=kaydedilenler" onclick="event.preventDefault();toggleSiteMenu();showPage('bookmarks')">♥ Kaydet</a>
+      <a href="/?sayfa=hakkimda" onclick="event.preventDefault();toggleSiteMenu();showPage('about')">Hakkımda</a>
+      <a href="/?sayfa=orijinal-siteler" onclick="event.preventDefault();toggleSiteMenu();showPage('original-sites')">Orijinal Siteler</a>
+      <a href="/?sayfa=merak-edilenler" onclick="event.preventDefault();toggleSiteMenu();showPage('faq')">Merak Edilenler</a>
+      <a href="https://discord.gg/2BvFugBMaJ" target="_blank" rel="noopener">💬 Discord</a>
+    </div>
+  </div>
+</div>
+
+<!-- HOME PAGE -->
+<div id="page-home" class="page active">
+  <div class="container" style="padding-top:14px">
+    <section style="padding-top:0">
+      <div class="top-carousel" id="top-carousel"></div>
+    </section>
+    <section style="padding-top:0">
+      <img src="https://i.ibb.co/xS59qY0T/Chat-GPT-mage-1-Tem-2026-11-34-36.png" alt="Loki Scans" style="width:100%;border-radius:var(--radius);display:block">
+    </section>
+    <section style="padding-top:0">
+      <div class="section-title">
+        <h2>📺 Son Yüklenenler</h2>
+        <div class="line"></div>
+      </div>
+      <div class="series-grid-2col" id="series-big-grid"></div>
+      <div id="home-pagination" style="display:flex;justify-content:center;gap:6px;margin-top:16px;flex-wrap:wrap"></div>
+    </section>
+    <section>
+      <div class="section-title">
+        <h2>🏆 En Popüler Seriler</h2>
+        <div class="line"></div>
+      </div>
+      <div class="leaderboard-tabs" id="leaderboard-tabs"></div>
+      <div id="leaderboard-list"></div>
+    </section>
+  </div>
+    <section style="padding-top:0">
+      <div class="rules-card" style="border-left-color:var(--emerald2)">
+        <h3>📢 DUYURU</h3>
+        <p style="font-size:13px;line-height:1.7;color:var(--text);margin-bottom:14px">Sevdiğiniz bir seri varsa Discord sunucumuzdan bize yazın — talep gelen serilerin devamını çevirip siteye yüklüyoruz!</p>
+        <a href="https://discord.gg/2BvFugBMaJ" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:#5865F2;color:#fff;padding:9px 18px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">💬 Discord'a Katıl</a>
+      </div>
+    </section>
+    <section style="padding-top:0">
+      <div class="rules-card">
+        <h3>⚜ SOHBET KURALLARI ⚜</h3>
+        <ul>
+          <li><strong>Saygı ve Nezaket:</strong> Küfür, argo, hakaret ve rahatsız edici dil yasaktır.</li>
+          <li><strong>Görünen Ad:</strong> Küfürlü veya uygunsuz ad kullananlar sohbetten uzaklaştırılır.</li>
+          <li><strong>Reklam Yasağı:</strong> Site, Discord veya farklı platform reklamı yapmak yasaktır.</li>
+          <li><strong>Spoiler &amp; Spam:</strong> Spoiler vermek ve gereksiz mesajlarla sohbeti doldurmak yasaktır.</li>
+          <li><strong>Yetkililere Uyun:</strong> Moderatör uyarılarına uymayanlar susturulur veya uzaklaştırılır.</li>
+        </ul>
+        <div class="rules-footer">✦ Herkesin keyifli vakit geçirmesi için kurallara uyalım! ✦</div>
+      </div>
+    </section>
+  <footer class="site-footer">&nbsp;</footer>
+</div>
+
+<!-- LIST PAGE -->
+<div id="page-list" class="page">
+  <div class="container" style="padding-top:20px;padding-bottom:40px">
+    <div class="section-title" style="margin-bottom:12px">
+      <h2>📚 Tüm Seriler</h2>
+      <div class="line"></div>
+      <span style="font-size:12px;color:var(--muted)" id="list-count"></span>
+    </div>
+    <div class="filter-bar">
+      <select class="filter-select" id="filter-sort" onchange="renderList()">
+        <option value="updated">Son Güncellenen</option>
+        <option value="popular">Popüler</option>
+        <option value="az">A-Z</option>
+      </select>
+      <select class="filter-select" id="filter-status" onchange="renderList()">
+        <option value="all">Tüm Durum</option>
+        <option value="ongoing">Devam Ediyor</option>
+        <option value="completed">Tamamlandı</option>
+        <option value="caught">Yetişildi</option>
+        <option value="seasonend">Sezon Finali</option>
+      </select>
+    </div>
+    <div class="genre-filter" id="list-genre-filter"></div>
+    <div class="manga-grid" id="list-grid"></div>
+  </div>
+  <footer class="site-footer">&nbsp;</footer>
+</div>
+
+<!-- MANGA DETAIL PAGE -->
+<div id="page-manga" class="page">
+  <div class="container" style="padding-top:20px;padding-bottom:40px" id="manga-detail-content"></div>
+  <footer class="site-footer">&nbsp;</footer>
+</div>
+
+<!-- READER PAGE -->
+<div id="page-reader" class="page">
+  <div id="reader-intro-card"></div>
+  <div class="reader-pages" id="reader-pages"></div>
+  <div id="reader-end-card"></div>
+</div>
+
+<!-- BOOKMARKS PAGE -->
+<div id="page-bookmarks" class="page">
+  <div class="container" style="padding-top:20px;padding-bottom:40px">
+    <div class="section-title" style="margin-bottom:20px">
+      <h2>♥ Kaydedilenler</h2>
+      <div class="line"></div>
+      <span style="font-size:12px;color:var(--muted)" id="bm-count"></span>
+    </div>
+    <div class="manga-grid" id="bookmarks-grid"></div>
+  </div>
+  <footer class="site-footer">&nbsp;</footer>
+</div>
+
+<div id="page-about" class="page">
+  <div class="container" style="padding-top:20px;padding-bottom:40px;max-width:640px">
+    <div class="section-title" style="margin-bottom:20px">
+      <h2>Hakkımda</h2>
+      <div class="line"></div>
+    </div>
+    <div class="about-box">
+      <p>Siteyi açma nedenim şu: sevdiğiniz ama yarıda bırakılmış ya da bölümleri kilitli/paralı olan serileri, bütçesi olmayanların da okuyabilmesi için çevirmek.</p>
+      <p>Okumak istediğiniz ama kilitli veya bırakılmış bir seri varsa, yorumlara yazın — çevireyim! 🗡️</p>
+      <p>Günlük rutinimi de paylaşayım: önce yetiştirdiğim serilere yeni bölüm gelip gelmediğine bakarım, güncel kalmalarını sağlarım. Ardından İngilizce hâli bitmeye yakın (10 bölüm kadar kalmış) serilere öncelik veririm, onları yetiştirip "Yetişildi" durumuna getiririm. Son olarak da sizden gelen istek serilerini çeviririm.</p>
+      <p><strong>Önemli not:</strong> Önceki bölümleri başka sitelerden çalıp buraya koymuyorum. Her serinin orijinal/resmi çeviri sitesine link bırakıyorum, önceki bölümleri oradan okuyabilirsiniz. Ben sadece kilitli/paralı bölümleri yapay zeka ile çevirip paylaşıyorum — emek verilerek gönüllü çevrilmiş (ücretsiz) serilere dokunmuyorum, o çevirmenlerin emeğine saygı duyuyorum.</p>
+    </div>
+  </div>
+  <footer class="site-footer">&nbsp;</footer>
+</div>
+
+<div id="page-original-sites" class="page">
+  <div class="container" style="padding-top:20px;padding-bottom:40px;max-width:640px">
+    <div class="section-title" style="margin-bottom:20px">
+      <h2>Orijinal Siteler Hakkında Bilmeniz Gerekenler</h2>
+      <div class="line"></div>
+    </div>
+    <div class="about-box">
+      <p>Her serinin sayfasında, önceki bölümlerin okunabileceği orijinal/resmi çeviri sitesine bir link bulunur. Bu linkler tesadüf değil — o serinin gerçek emeğini veren çevirmenlere yönlendirme amacı taşır.</p>
+      <p>Ben sadece kilitli/paralı olan, o sitelerin ilerleyemediği bölümleri yapay zeka ile çevirip paylaşıyorum. Serinin geri kalanı, yani asıl emeğin verildiği bölümler, orijinal sitenin eseridir.</p>
+      <p>Bu yüzden lütfen orijinal sitelere saygılı olun: yorumlarında olumsuz/saygısız davranmayın, "neden ücretli" gibi tartışmalar açmayın. Onlar da bu işi gönüllü ya da geçimlerini sağlamak için yapıyor, bizim işimiz onların yerine geçmek değil, sadece bütçesi olmayanlara bir köprü olmak.</p>
+      <p>Okuma keyfini orijinal sitede de yaşayabilir, çevirmenlerine destek olmak isterseniz onların Discord/sosyal medya hesaplarını takip edebilirsiniz.</p>
+    </div>
+
+    <div class="section-title" style="margin:28px 0 20px">
+      <h2>ParadoxScans</h2>
+      <div class="line"></div>
+    </div>
+    <div class="about-box">
+      <p>Bir hesap açıp günlük check-in yaparsanız <strong>350 coin</strong> kazanırsınız. Check-in yaptıktan sonra sitede 15 dakika aktif kalırsanız <strong>550 coin</strong> daha kazanırsınız.</p>
+      <p>Seri ya da bölümlere yorum yaparak da coin kazanabilirsiniz — günde 5 kereye kadar, her biri <strong>350 coin</strong> değerinde.</p>
+      <p><strong>Çoğu kişinin bilmediği önemli detay:</strong> Günlük girişinizde her gün bir oy (vote) hakkı kazanırsınız. Bu oyları, serinin kapak/bilgilendirme sayfasından kullanabilirsiniz. Her 1 vote, <strong>500 coin</strong> değerindedir.</p>
+      <p>Votelar çok fazla EXP verir, seviyeniz büyük artış gösterir. Her seviye artışında coin kazanırsınız. Anladığınız üzere kazanılan coinler ile vote yapmanın önemi çok büyüktür.</p>
+      <p><strong>VIP ne demek, ne işe yarar?</strong> VIP, exp ve coin kazancınızı biraz artıran, reklamları engelleyen bir özelliktir. (VIP olunca tüm bölümleri ücretsiz okuyamazsınız, yine coin ödemeniz gerekir.)</p>
+    </div>
+  </div>
+  <footer class="site-footer">&nbsp;</footer>
+</div>
+
+<div id="page-faq" class="page">
+  <div class="container" style="padding-top:20px;padding-bottom:40px;max-width:640px">
+    <div class="section-title" style="margin-bottom:20px">
+      <h2>Merak Edilenler</h2>
+      <div class="line"></div>
+    </div>
+    <div class="about-box">
+      <p>Sadece yapay zeka ile çevrilip kilitlenen serileri çeviriyorum. Emek verilerek (yapay zeka olmayan) ücretsiz ya da paralı çevrilen hiçbir seriye elimi sürmüyorum. Hedef kitlem, zaten yapay zeka ile üretilmiş ama kilit/sikke sistemiyle paralı hale getirilmiş bölümler.</p>
+      <p>Hangi seri veya bölümü çevireceğime kendim karar veriyorum — bu benim sitem ve tercihim.</p>
+      <p>Discord üzerinden kimseyi davet etmiyorum ve organize bir şey yapmıyorum. Önceden bazı Discord sunucularından kişileri siteme davet ediyordum, ama site sahipleri gelip beni uyardığında bıraktım.</p>
+      <p>Kimsenin çevirisini/emeğini kopyalamıyorum. Bir sitenin kilitli bölümünü görürsem, o sitenin çevirisini, editini ya da temizleme işçiliğini almıyorum. Kendi çevirimi orijinal İngilizce kaynaktan sıfırdan yapıyorum. Yani ortaya çıkan içerik tamamen kendi emeğim.</p>
+      <p>Amacım ticari değil. Reklam koymuyorum, bağış istemiyorum, para kazanmıyorum. Tek amacım bütçesi olmayan okuyucuların da bu serileri takip edebilmesi.</p>
+      <p>Neden bazı siteler rahatsız oluyor diye sorulursa: anlıyorum, bir seriyi kilit/sikke sistemiyle sundukları için benim ücretsiz versiyonum onların sistemini anlamsızlaştırabiliyor. Bu bir gelir/rekabet meselesi, benim onların emeğini çalmamla ilgili değil. Yine de bu rahatsızlığı anlayışla karşılıyorum.</p>
+    </div>
+  </div>
+  <footer class="site-footer">&nbsp;</footer>
+</div>
+
+<script>
+// ══ DATA ══
+const MANGA_DATA = [
+  {
+    id:'olmezsem-iblis-diyarini-fethedecegim',
+    title:'Ölmezsem İblis Diyarını Fethedeceğim',
+    cover:'https://i.ibb.co/BK7wGyjt/41436b70-4bba-425b-bb8d-0b3d0caf2e3f.png',
+    author:'LOKİ',
+    genres:['Aksiyon','Büyü','Çin','Doğa','Dövüş Sanatları','Fantazi'],
+    status:'Devam Ediyor',
+    prevUrl:'https://paradoxscans.com/seri/olmezsem-iblis-diyarini-fethedecegim/',
+    monthlyViews:7021,
+    weeklyViews:2175,
+    dailyViews:266,
+    views:11132,
+    favorites:0,
+    updated:'2026-07-06',
+    description:'Ölmezsem İblis Diyarını Fethedeceğim! İnsanlığın en güçlü savaşçısı, iblislerle girdiği çetin savaşta hayatını kaybetti. Ancak ölümünün ardından yeniden doğma gücü kazandı... ne var ki bu kez bir insan olarak değil, bir iblis olarak yeniden dünyaya geldi. Tekrar insan olabilmesinin tek yolu ölmekti. Bu yüzden durmaksızın intihar etmeye çalıştı. Fakat her şey, beklediğinin tam tersine gelişmeye başladı...',
+    chapters:[
+      {id:100,title:'Bölüm 100',date:'2026-07-06',pages:[
+        'https://i.ibb.co/BK7wGyjt/41436b70-4bba-425b-bb8d-0b3d0caf2e3f.png',
+        'https://i.ibb.co/7dFJ95Pb/Zombo-Droid-06072026185247.jpg',
+        'https://i.ibb.co/9HGSb6V8/Zombo-Droid-06072026185356.jpg'
+      ]},
+      {id:101,title:'Bölüm 101',date:'2026-07-06',pages:[
+        'https://i.ibb.co/BK7wGyjt/41436b70-4bba-425b-bb8d-0b3d0caf2e3f.png',
+        'https://i.ibb.co/fdXcbQDd/Zombo-Droid-06072026185728.jpg',
+        'https://i.ibb.co/kVTJmkSs/Zombo-Droid-06072026185835.jpg'
+      ]},
+      {id:102,title:'Bölüm 102',date:'2026-07-06',pages:[
+        'https://i.ibb.co/BK7wGyjt/41436b70-4bba-425b-bb8d-0b3d0caf2e3f.png',
+        'https://i.ibb.co/kzDgBgR/Zombo-Droid-06072026190200.jpg',
+        'https://i.ibb.co/93ZHdjF5/Zombo-Droid-06072026190302.jpg'
+      ]},
+      {id:103,title:'Bölüm 103',date:'2026-07-06',pages:[
+        'https://i.ibb.co/BK7wGyjt/41436b70-4bba-425b-bb8d-0b3d0caf2e3f.png',
+        'https://i.ibb.co/QFjd7Fpd/Zombo-Droid-06072026190735.jpg',
+        'https://i.ibb.co/hJswR9pc/Zombo-Droid-06072026190800.jpg'
+      ]},
+      {id:104,title:'Bölüm 104',date:'2026-07-06',pages:[
+        'https://i.ibb.co/BK7wGyjt/41436b70-4bba-425b-bb8d-0b3d0caf2e3f.png',
+        'https://i.ibb.co/pB9HWqk6/Zombo-Droid-06072026191123.jpg',
+        'https://i.ibb.co/gLjFT4xH/Zombo-Droid-06072026191159.jpg'
+      ]},
+      {id:105,title:'Bölüm 105',date:'2026-07-07',pages:[
+        'https://i.ibb.co/BK7wGyjt/41436b70-4bba-425b-bb8d-0b3d0caf2e3f.png',
+        'https://i.ibb.co/mCMZtDNC/Zombo-Droid-07072026084434.jpg',
+        'https://i.ibb.co/Jw04WVwj/Zombo-Droid-07072026084511.jpg'
+      ]},
+      {id:106,title:'Bölüm 106',date:'2026-07-07',pages:[
+        'https://i.ibb.co/BK7wGyjt/41436b70-4bba-425b-bb8d-0b3d0caf2e3f.png',
+        'https://i.ibb.co/PvkjMvfv/Zombo-Droid-07072026084711.jpg',
+        'https://i.ibb.co/Ggtd4bW/Zombo-Droid-07072026084800.jpg',
+        'https://i.ibb.co/TDtJgxzr/Zombo-Droid-07072026084842.jpg'
+      ]},
+      {id:107,title:'Bölüm 107',date:'2026-07-07',pages:[
+        'https://i.ibb.co/BK7wGyjt/41436b70-4bba-425b-bb8d-0b3d0caf2e3f.png',
+        'https://i.ibb.co/nqGmWc7Q/Zombo-Droid-07072026085204.jpg',
+        'https://i.ibb.co/n8bWhYk5/Zombo-Droid-07072026085237.jpg'
+      ]},
+      {id:108,title:'Bölüm 108',date:'2026-07-07',pages:[
+        'https://i.ibb.co/BK7wGyjt/41436b70-4bba-425b-bb8d-0b3d0caf2e3f.png',
+        'https://i.ibb.co/p6Nm651H/Zombo-Droid-07072026090346.jpg',
+        'https://i.ibb.co/VcmhbDBD/Zombo-Droid-07072026090445.jpg',
+        'https://i.ibb.co/MxV4TGxK/Zombo-Droid-07072026090523.jpg'
+      ]},
+      {id:109,title:'Bölüm 109',date:'2026-07-07',pages:[
+        'https://i.ibb.co/BK7wGyjt/41436b70-4bba-425b-bb8d-0b3d0caf2e3f.png',
+        'https://i.ibb.co/60fkGSS1/Zombo-Droid-07072026091828.jpg',
+        'https://i.ibb.co/9jSCsrk/Zombo-Droid-07072026091900.jpg',
+        'https://i.ibb.co/ZRtzqZcV/Zombo-Droid-07072026091926.jpg'
+      ]},
+      {id:110,title:'Bölüm 110',date:'2026-07-07',pages:[
+        'https://i.ibb.co/BK7wGyjt/41436b70-4bba-425b-bb8d-0b3d0caf2e3f.png',
+        'https://i.ibb.co/GQB2yrGx/Zombo-Droid-07072026092135.jpg',
+        'https://i.ibb.co/Kz8bQS78/Zombo-Droid-07072026092247.jpg',
+        'https://i.ibb.co/NgCzxyGd/Zombo-Droid-07072026092324.jpg'
+      ]},
+    ],
+  },
+  {
+    id:'4-cut-hero',
+    title:'4 Cut Hero',
+    cover:'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+    author:'LOKİ',
+    genres:['Aksiyon','Macera','Komedi','Fantazi'],
+    status:'Devam Ediyor',
+    prevUrl:'https://manga-tr.com/manga-4-tip-kahraman.html',
+    views:18791,
+    monthlyViews:13830,
+    weeklyViews:4382,
+    dailyViews:487,
+    favorites:0,
+    updated:'2026-07-07',
+    description:"Kahramanımız, İblis Kral'ı alt edip prensesi kurtardıktan sonra yeni bir hayata yelken açar… Ama anca rüyasında… Ayrıca işsizliğin ve sıradan bir hayatın onu beklediğinden haberi bile yoktur.",
+    chapters:[
+      {id:13,title:'Bölüm 13',date:'2026-07-04',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/rGCgBJkz/Zombo-Droid-04072026000300.jpg'
+      ]},
+      {id:14,title:'Bölüm 14',date:'2026-07-04',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/cS6Vm45B/Zombo-Droid-04072026005354.jpg'
+      ]},
+      {id:15,title:'Bölüm 15',date:'2026-07-04',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/39cs0j9R/Zombo-Droid-04072026005455.jpg'
+      ]},
+      {id:16,title:'Bölüm 16',date:'2026-07-04',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/vvZ22Mvp/Zombo-Droid-04072026005627.jpg'
+      ]},
+      {id:17,title:'Bölüm 17',date:'2026-07-04',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/dstsjJZF/Zombo-Droid-04072026005740.jpg',
+        'https://i.ibb.co/h1cGcTzg/Zombo-Droid-04072026005825.jpg'
+      ]},
+      {id:18,title:'Bölüm 18',date:'2026-07-04',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/jPpVSyYL/Zombo-Droid-04072026144919.jpg'
+      ]},
+      {id:19,title:'Bölüm 19',date:'2026-07-04',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/qLnRKfvk/Zombo-Droid-04072026144958.jpg',
+        'https://i.ibb.co/wZRjbB0Y/Zombo-Droid-04072026145114.jpg'
+      ]},
+      {id:20,title:'Bölüm 20',date:'2026-07-04',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/3mB39bt0/Zombo-Droid-04072026145138.jpg',
+        'https://i.ibb.co/qMg2shWb/Zombo-Droid-04072026145251.jpg'
+      ]},
+      {id:21,title:'Bölüm 21',date:'2026-07-04',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/QFzCkC2s/Zombo-Droid-04072026145540.jpg'
+      ]},
+      {id:22,title:'Bölüm 22',date:'2026-07-04',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/DPTjkznk/Zombo-Droid-04072026145815.jpg',
+        'https://i.ibb.co/9k0s2Z4b/Zombo-Droid-04072026145843.jpg'
+      ]},
+      {id:23,title:'Bölüm 23',date:'2026-07-04',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/VY4N7YKQ/Zombo-Droid-04072026151814.jpg'
+      ]},
+      {id:24,title:'Bölüm 24',date:'2026-07-04',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/bM2DhkLj/Zombo-Droid-04072026152834.jpg'
+      ]},
+      {id:25,title:'Bölüm 25',date:'2026-07-04',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/7xj0qgww/Zombo-Droid-04072026153144.jpg'
+      ]},
+      {id:26,title:'Bölüm 26',date:'2026-07-04',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/XZcyM6CT/Zombo-Droid-04072026153251.jpg'
+      ]},
+      {id:27,title:'Bölüm 27',date:'2026-07-04',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/svC2W0Tx/Zombo-Droid-04072026153438.jpg'
+      ]},
+      {id:28,title:'Bölüm 28',date:'2026-07-06',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/B2dJcLj9/Zombo-Droid-06072026114506.jpg'
+      ]},
+      {id:29,title:'Bölüm 29',date:'2026-07-06',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/CKgPpTGZ/Zombo-Droid-06072026114625.jpg'
+      ]},
+      {id:30,title:'Bölüm 30',date:'2026-07-06',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/9L1tZP0/Zombo-Droid-06072026114802.jpg'
+      ]},
+      {id:31,title:'Bölüm 31',date:'2026-07-07',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/ZpW4WKgV/Zombo-Droid-07072026094946.jpg'
+      ]},
+      {id:32,title:'Bölüm 32',date:'2026-07-07',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/xt7q4HJR/Zombo-Droid-07072026095206.jpg'
+      ]},
+      {id:33,title:'Bölüm 33',date:'2026-07-07',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/v6v4v0Kf/Zombo-Droid-07072026095315.jpg'
+      ]},
+      {id:34,title:'Bölüm 34',date:'2026-07-07',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/29RNzbH/Zombo-Droid-07072026095503.jpg'
+      ]},
+      {id:35,title:'Bölüm 35',date:'2026-07-07',pages:[
+        'https://i.ibb.co/673Jmp39/78936cdc-ba15-4c9f-a3b2-8352fdb54459.png',
+        'https://i.ibb.co/270ZtvhJ/Zombo-Droid-07072026095555.jpg'
+      ]}
+    ]
+  },
+  {
+    id:'the-novels-extra',
+    title:"The Novel's Extra",
+    cover:'https://i.ibb.co/0y3Bd36p/947c38e6-e676-41fb-92c8-a4923e1db5d2.png',
+    author:'',
+    genres:['Aksiyon','Büyü','Drama','Fantazi','Gündelik Yaşam','Komedi'],
+    status:'Yetişildi',
+    prevUrl:'https://paradoxscans.com/seri/romandaki-figuran/',
+    views:9669,
+    monthlyViews:6200,
+    weeklyViews:1257,
+    dailyViews:132,
+    favorites:0,
+    updated:'2026-07-07',
+    description:'Bir romanın dünyasında milyarlarca karakter olur. Ancak sadece ana karakterler ve "önemli yardımcı karakterler" dışında kimse ada sahip olmaz. "Chundong, nerelere daldın öyle?" Bilmiyorum. Adım neden Chundong onu bile bilmiyorum. Şu anda yazdığım romanın dünyasındayım. Ama hiç yazmadığım bir karakter olarak buradayım. Küp\'e girebilmek dışında karakterimin hiçbir özelliği yok. Kimseyle konuşmuşluğu bile yok. Kısaca bu romanın figüranı oldum… Hayır küçük bir toz parçası oldum.',
+    chapters:[
+      {id:153,title:'Bölüm 153',date:'2026-07-03',pages:[
+        'https://i.ibb.co/0y3Bd36p/947c38e6-e676-41fb-92c8-a4923e1db5d2.png',
+        'https://i.ibb.co/WvLv81wn/Zombo-Droid-03072026132142.jpg',
+        'https://i.ibb.co/cKqQpgNG/Zombo-Droid-03072026132212.jpg',
+        'https://i.ibb.co/W4rS8CSN/Zombo-Droid-03072026135715.jpg',
+        'https://i.ibb.co/Zz4NYHz0/Zombo-Droid-03072026132417.jpg',
+        'https://i.ibb.co/99bHXXgY/Zombo-Droid-03072026132452.jpg'
+      ]},
+      {id:154,title:'Bölüm 154',date:'2026-07-03',pages:[
+        'https://i.ibb.co/0y3Bd36p/947c38e6-e676-41fb-92c8-a4923e1db5d2.png',
+        'https://i.ibb.co/3mfxMhD7/Zombo-Droid-03072026132930.jpg',
+        'https://i.ibb.co/pvpKHMm3/Zombo-Droid-03072026133003.jpg',
+        'https://i.ibb.co/BKL3V77P/Zombo-Droid-03072026133039.jpg',
+        'https://i.ibb.co/nMHmznTH/Zombo-Droid-03072026133110.jpg'
+      ]},
+      {id:155,title:'Bölüm 155',date:'2026-07-03',pages:[
+        'https://i.ibb.co/0y3Bd36p/947c38e6-e676-41fb-92c8-a4923e1db5d2.png',
+        'https://i.ibb.co/ksygZYyR/Zombo-Droid-03072026152513.jpg',
+        'https://i.ibb.co/DTZQSd4/Zombo-Droid-03072026152546.jpg',
+        'https://i.ibb.co/LzMB6Lv5/Zombo-Droid-03072026152624.jpg',
+        'https://i.ibb.co/Z1V27ZRH/Zombo-Droid-03072026152658.jpg'
+      ]},
+      {id:156,title:'Bölüm 156',date:'2026-07-03',pages:[
+        'https://i.ibb.co/0y3Bd36p/947c38e6-e676-41fb-92c8-a4923e1db5d2.png',
+        'https://i.ibb.co/rGCT2Yh7/Zombo-Droid-03072026153052.jpg',
+        'https://i.ibb.co/mrWHPWpG/Zombo-Droid-03072026153127.jpg',
+        'https://i.ibb.co/HDNFV1BV/Zombo-Droid-03072026153221.jpg',
+        'https://i.ibb.co/qLLPRrRd/Zombo-Droid-03072026153304.jpg',
+        'https://i.ibb.co/DfP6kz2J/Zombo-Droid-03072026153336.jpg'
+      ]},
+      {id:157,title:'Bölüm 157',date:'2026-07-03',pages:[
+        'https://i.ibb.co/0y3Bd36p/947c38e6-e676-41fb-92c8-a4923e1db5d2.png',
+        'https://i.ibb.co/pBb3Hw6J/Zombo-Droid-03072026153832.jpg',
+        'https://i.ibb.co/1JzDV08g/Zombo-Droid-03072026153916.jpg',
+        'https://i.ibb.co/mFd9b324/Zombo-Droid-03072026153955.jpg',
+        'https://i.ibb.co/JwhVy50S/Zombo-Droid-03072026154024.jpg'
+      ]},
+      {id:158,title:'Bölüm 158',date:'2026-07-04',pages:[
+        'https://i.ibb.co/0y3Bd36p/947c38e6-e676-41fb-92c8-a4923e1db5d2.png',
+        'https://i.ibb.co/0RfKcRTt/Zombo-Droid-04072026112242.jpg',
+        'https://i.ibb.co/RpDMMNmZ/Zombo-Droid-04072026112313.jpg',
+        'https://i.ibb.co/fVVGRpd7/Zombo-Droid-04072026112348.jpg',
+        'https://i.ibb.co/8gcjbHHt/Zombo-Droid-04072026112429.jpg'
+      ]},
+      {id:159,title:'Bölüm 159',date:'2026-07-04',pages:[
+        'https://i.ibb.co/0y3Bd36p/947c38e6-e676-41fb-92c8-a4923e1db5d2.png',
+        'https://i.ibb.co/SDjmx9SN/Zombo-Droid-04072026114017.jpg',
+        'https://i.ibb.co/zq91grC/Zombo-Droid-04072026114047.jpg',
+        'https://i.ibb.co/9mttGQ4s/Zombo-Droid-04072026114119.jpg',
+        'https://i.ibb.co/Tq21HgHw/Zombo-Droid-04072026114222.jpg'
+      ]},
+      {id:160,title:'Bölüm 160',date:'2026-07-04',pages:[
+        'https://i.ibb.co/0y3Bd36p/947c38e6-e676-41fb-92c8-a4923e1db5d2.png',
+        'https://i.ibb.co/cSwdM1wW/Zombo-Droid-04072026114451.jpg',
+        'https://i.ibb.co/DPXT78Fv/Zombo-Droid-04072026114524.jpg',
+        'https://i.ibb.co/20fQk3bR/Zombo-Droid-04072026114558.jpg',
+        'https://i.ibb.co/Z6TY9N4K/Zombo-Droid-04072026114801.jpg'
+      ]},
+      {id:161,title:'Bölüm 161',date:'2026-07-04',pages:[
+        'https://i.ibb.co/0y3Bd36p/947c38e6-e676-41fb-92c8-a4923e1db5d2.png',
+        'https://i.ibb.co/wrc4ngvp/Zombo-Droid-04072026115007.jpg',
+        'https://i.ibb.co/0phqTqbX/Zombo-Droid-04072026115041.jpg',
+        'https://i.ibb.co/VpD46Q4D/Zombo-Droid-04072026115129.jpg',
+        'https://i.ibb.co/603WbzYx/Zombo-Droid-04072026115213.jpg'
+      ]},
+      {id:162,title:'Bölüm 162',date:'2026-07-04',pages:[
+        'https://i.ibb.co/0y3Bd36p/947c38e6-e676-41fb-92c8-a4923e1db5d2.png',
+        'https://i.ibb.co/fzJChszp/Zombo-Droid-04072026115635.jpg',
+        'https://i.ibb.co/Jj8CQ0kX/Zombo-Droid-04072026115709.jpg',
+        'https://i.ibb.co/TDbqKMww/Zombo-Droid-04072026115739.jpg',
+        'https://i.ibb.co/c5BV2gb/Zombo-Droid-04072026115824.jpg'
+      ]},
+      {id:163,title:'Bölüm 163',date:'2026-07-07',pages:[
+        'https://i.ibb.co/0y3Bd36p/947c38e6-e676-41fb-92c8-a4923e1db5d2.png',
+        'https://i.ibb.co/hJLbg8DZ/Zombo-Droid-07072026094132.jpg',
+        'https://i.ibb.co/Y4yWHRVv/Zombo-Droid-07072026094237.jpg',
+        'https://i.ibb.co/6JNZyfmZ/Zombo-Droid-07072026094342.jpg',
+        'https://i.ibb.co/3yyM3548/Zombo-Droid-07072026094410.jpg'
+      ]}
+    ]
+  },
+  {
+    id:'unutulmus-dahi-dovuscu',
+    title:'Unutulmuş Dâhi Dövüşçü',
+    cover:'https://i.ibb.co/8LF8w0W1/489495ad-787b-4f33-a989-d75314f0ba91.png',
+    author:'Redice Studio',
+    genres:['Aksiyon','Büyü','Doğa','Dövüş Sanatları','Fantazi','Geri Dönüş','Komedi','Sistem'],
+    status:'Yetişildi',
+    prevUrl:'https://paradoxscans.com/seri/unutulmaz-dahi-dovuscu/',
+    views:1894,
+    monthlyViews:1232,
+    weeklyViews:389,
+    dailyViews:63,
+    favorites:0,
+    updated:'2026-07-05',
+    description:'Her şeyi hatırlayan üçüncü sınıf bir savaşçı olan Jin Sowoon, Şeytani Tarikat\'ın geri dönüşünden 30 yıl öncesine geri döner. "Geçmişe dönmüş olmam, dünyayı kurtarmam gerektiği anlamına gelmiyor." "Eğer öyle olsaydı, bari bana özel bir yetenek verirlerdi… ya da Zhang Sanfeng\'in ruhunu falan!" Ama gerçekler değişmez. Bağlı olduğu mezhep, umutsuz bir üçüncü sınıf tarikattır. Dövüş sanatlarındaki yeteneği ise en alt seviyededir. Elindeki imkanlar bu kadar zayıfken, bu geri dönüş kutlanacak bir fırsat olmaktan çok uzaktır. "Mahvoldum." Ve böylece Jin Sowoon\'un, zaten umutsuzluğa yazılmış bir geleceği değiştirmek için verdiği çaresiz ama inatçı mücadelesi başlar.',
+    chapters:[
+      {id:13,title:'Bölüm 13',date:'2026-06-28',pages:[
+        'https://i.ibb.co/8LF8w0W1/489495ad-787b-4f33-a989-d75314f0ba91.png',
+        'https://i.ibb.co/MDyGxWsr/Zombo-Droid-28062026122959.jpg',
+        'https://i.ibb.co/QvbnghTV/Zombo-Droid-28062026123022.jpg'
+      ]},
+      {id:14,title:'Bölüm 14',date:'2026-06-28',pages:[
+        'https://i.ibb.co/8LF8w0W1/489495ad-787b-4f33-a989-d75314f0ba91.png',
+        'https://i.ibb.co/Mkry2M4C/Zombo-Droid-28062026123940.jpg',
+        'https://i.ibb.co/wNtQ22c6/Zombo-Droid-28062026124000.jpg'
+      ]},
+      {id:15,title:'Bölüm 15',date:'2026-07-01',pages:[
+        'https://i.ibb.co/8LF8w0W1/489495ad-787b-4f33-a989-d75314f0ba91.png',
+        'https://i.ibb.co/zVthXV6G/002-001.jpg',
+        'https://i.ibb.co/m5P4sjnH/Zombo-Droid-01072026193442.jpg',
+        'https://i.ibb.co/7xvsvrWR/Zombo-Droid-01072026193318.jpg',
+        'https://i.ibb.co/XkbsqtSS/Zombo-Droid-01072026193353.jpg'
+      ]},
+      {id:16,title:'Bölüm 16',date:'2026-07-05',pages:[
+        'https://i.ibb.co/8LF8w0W1/489495ad-787b-4f33-a989-d75314f0ba91.png',
+        'https://i.ibb.co/fd9yMdvv/Zombo-Droid-05072026094338.jpg',
+        'https://i.ibb.co/0gnvs87/Zombo-Droid-05072026094407.jpg',
+        'https://i.ibb.co/sdBSJgzM/Zombo-Droid-05072026094437.jpg',
+        'https://i.ibb.co/Zzqkf9nP/Zombo-Droid-05072026094559.jpg'
+      ]}
+    ]
+  },
+  {
+    id:'kotuyum-kardesim-secilmis-kisi',
+    title:'Kötüyüm: Kardeşim Seçilmiş Kişi',
+    cover:'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+    author:'LOKİ',
+    genres:['Aksiyon','Fantazi','Komedi','Sistem'],
+    status:'Tamamlandı',
+    prevUrl:'https://paradoxscans.com/seri/kotuyum-kardesim-secilmis-kisi/',
+    views:34891,
+    monthlyViews:22341,
+    weeklyViews:3217,
+    dailyViews:541,
+
+    favorites:0,
+    updated:'2026-06-25',
+    description:"Qing Feng yanlışlıkla antik çağlara ışınlanır ve Qing ailesinin efendisi, bir hükümdar olur. Her şeye sahip olabileceği bir hayat yaşayabileceğini düşünür. İkiz kardeşinin \"efsanevi seçilmiş kişi\" ve kendisinin \"kaderdeki kötü adam\" olduğunu kim bilebilirdi ki? Hayatta kalmak için sistemin yardımıyla çok çalışmaktan başka çaresi yoktur! [Ding Dong, sunucunun seçilmiş kişinin poposuna vurduğunu tespit etti. 100 kötü adam puanı kazanıldı.] [Ding Dong, tebrikler sunucu, görevi tetiklediğiniz için, banyo yapan Bi Yu'yu kızdırın. 200 kötü adam puanı ödülü.] Hehehe Bazen kötü adam olmak kötü bir fikir gibi görünmüyor.",
+    chapters:[
+      {id:220,title:'Bölüm 220',date:'2026-06-10',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/RT1nL82V/1-1-1781012426166.jpg',
+        'https://i.ibb.co/YT2JjP5z/2-1-1781012427372.jpg',
+        'https://i.ibb.co/Fkp7Jh83/3-1-1781012426351.jpg',
+        'https://i.ibb.co/S4PQmcRk/4-1-1781012426448.jpg'
+      ]},
+      {id:221,title:'Bölüm 221',date:'2026-06-14',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/1th5kVyX/1-1-1781012425004.jpg',
+        'https://i.ibb.co/jkH0L8Km/2-1-1-1781012425947.jpg',
+        'https://i.ibb.co/5xn58XkN/3-1-1781012425869.jpg',
+        'https://i.ibb.co/RpD33JgZ/4-1-1781012425187.jpg',
+        'https://i.ibb.co/qLDppMTd/5-1-1781012425249.jpg'
+      ]},
+      {id:222,title:'Bölüm 222',date:'2026-06-18',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/ymP9bRjm/1-1-1780998115522.jpg',
+        'https://i.ibb.co/HpggJDLH/2-1-1-1780998115653.jpg',
+        'https://i.ibb.co/tTszMnhN/3-1-1780998115749.jpg',
+        'https://i.ibb.co/1J8Fh1CV/4-1-1780998115830.jpg',
+        'https://i.ibb.co/Qv1rp4tg/5-1-1780998115951.jpg'
+      ]},
+      {id:223,title:'Bölüm 223',date:'2026-06-21',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/Kx1M7z8V/1-1.jpg',
+        'https://i.ibb.co/60zH9dtw/2-1-1.jpg',
+        'https://i.ibb.co/ZzqM1qW1/3-1-1780996169323.jpg',
+        'https://i.ibb.co/dJQMDgmp/4-1.jpg',
+        'https://i.ibb.co/SDJdD8Vn/5-1-1780996169589.jpg'
+      ]},
+      {id:224,title:'Bölüm 224',date:'2026-06-21',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/XZW2Sp1s/1-1-2.jpg',
+        'https://i.ibb.co/kg9S0vqn/2-2-1.jpg',
+        'https://i.ibb.co/mrGnTcb3/3-3.jpg',
+        'https://i.ibb.co/rGpcCP9n/4-1-2.jpg'
+      ]},
+      {id:225,title:'Bölüm 225',date:'2026-06-21',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/LhgvzhbK/1-1-3.jpg',
+        'https://i.ibb.co/tPvS31W8/2-3.jpg',
+        'https://i.ibb.co/nqQbVNk7/3-4.jpg',
+        'https://i.ibb.co/3mC151fW/4-1-3.jpg',
+        'https://i.ibb.co/V09DDQvX/5-3.jpg'
+      ]},
+      {id:226,title:'Bölüm 226',date:'2026-06-21',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/p6JRqSFJ/1-1-4.jpg',
+        'https://i.ibb.co/SXLXQ6sp/2-4.jpg',
+        'https://i.ibb.co/7NgnqjwN/3-5.jpg',
+        'https://i.ibb.co/G4F4VDzw/4-1-4.jpg'
+      ]},
+      {id:227,title:'Bölüm 227',date:'2026-06-21',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/7tJvsjwS/1-1-5.jpg',
+        'https://i.ibb.co/YHcpbXx/2-5.jpg',
+        'https://i.ibb.co/p6hv4TLz/3-6.jpg',
+        'https://i.ibb.co/fdgb8pnK/4-1-5.jpg',
+        'https://i.ibb.co/SD7Rf30X/5-4.jpg'
+      ]},
+      {id:228,title:'Bölüm 228',date:'2026-06-21',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/zw1nnMS/1-1-6.jpg',
+        'https://i.ibb.co/7dMSW3vD/2-6.jpg',
+        'https://i.ibb.co/JR4GY0FP/3-7.jpg',
+        'https://i.ibb.co/5ghRkcnd/4-1-6.jpg',
+        'https://i.ibb.co/8nDXvgQW/5-5.jpg'
+      ]},
+      {id:229,title:'Bölüm 229',date:'2026-06-21',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/CpKyt1hX/1-1-7.jpg',
+        'https://i.ibb.co/VY2Xd3dh/2-7.jpg',
+        'https://i.ibb.co/prkxpvCx/3-8.jpg',
+        'https://i.ibb.co/WvDMJYQw/4-1-7.jpg'
+      ]},
+      {id:230,title:'Bölüm 230',date:'2026-06-21',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/z3C18kc/1-1-8.jpg',
+        'https://i.ibb.co/Vp977f6t/2-8.jpg',
+        'https://i.ibb.co/Z1SdFXtC/3-9.jpg'
+      ]},
+      {id:231,title:'Bölüm 231',date:'2026-06-22',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/fzm0Cr0F/1-1-9-1.jpg',
+        'https://i.ibb.co/dsWKcXc7/2-18.jpg',
+        'https://i.ibb.co/Kxnt55Mj/3-10.jpg'
+      ]},
+      {id:232,title:'Bölüm 232',date:'2026-06-22',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/SDsFJvNV/1-1-10.jpg',
+        'https://i.ibb.co/rGv5PTGP/2-9.jpg',
+        'https://i.ibb.co/KzQ6cyzv/3-11.jpg'
+      ]},
+      {id:233,title:'Bölüm 233',date:'2026-06-22',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/67Tqkwt0/1-1-11.jpg',
+        'https://i.ibb.co/B22NS7m1/2-10.jpg',
+        'https://i.ibb.co/05R3xdK/3-12.jpg'
+      ]},
+      {id:234,title:'Bölüm 234',date:'2026-06-22',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/JF8MyDn0/1-1-12.jpg',
+        'https://i.ibb.co/5X6zgtqm/2-11.jpg',
+        'https://i.ibb.co/6RyvB27q/3-13.jpg',
+        'https://i.ibb.co/gLdypxJf/4-1-8.jpg'
+      ]},
+      {id:235,title:'Bölüm 235',date:'2026-06-22',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/5Wh2V2sm/1-1-13.jpg',
+        'https://i.ibb.co/RTGxSLX6/2-12.jpg',
+        'https://i.ibb.co/jvgwD1FH/3-14.jpg',
+        'https://i.ibb.co/JRq5ZPNQ/4-1-9.jpg'
+      ]},
+      {id:236,title:'Bölüm 236',date:'2026-06-22',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/r2H07L3p/1-1-14.jpg',
+        'https://i.ibb.co/r26cGbgm/2-13.jpg',
+        'https://i.ibb.co/JW1H0G3B/3-15.jpg',
+        'https://i.ibb.co/DPwL4bg5/4-1-10-1.jpg',
+        'https://i.ibb.co/nNfFM8JX/5-7-1.jpg',
+        'https://i.ibb.co/zhL76kH6/6-4.jpg'
+      ]},
+      {id:237,title:'Bölüm 237',date:'2026-06-22',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/zW83qZQ1/1-1-15.jpg',
+        'https://i.ibb.co/1Yw2mv4Y/2-14.jpg',
+        'https://i.ibb.co/DffG15cJ/3-16.jpg',
+        'https://i.ibb.co/wNrqsdHx/4-1-11.jpg',
+        'https://i.ibb.co/m5Vg0XnF/5-8.jpg'
+      ]},
+      {id:238,title:'Bölüm 238',date:'2026-06-22',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/2340yYp5/1-1-16.jpg',
+        'https://i.ibb.co/27rwpSrG/2-15.jpg',
+        'https://i.ibb.co/rKv7LNZw/3-17.jpg',
+        'https://i.ibb.co/23GBxpF3/4-1-12.jpg'
+      ]},
+      {id:239,title:'Bölüm 239',date:'2026-06-22',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/n8wgNrzb/1-1-17.jpg',
+        'https://i.ibb.co/wFsMjTdY/2-16.jpg',
+        'https://i.ibb.co/x8SrQ4qn/3-18.jpg',
+        'https://i.ibb.co/kgNMW7vH/4-1-13.jpg',
+        'https://i.ibb.co/sdP8V4bk/5-9.jpg'
+      ]},
+      {id:240,title:'Bölüm 240',date:'2026-06-22',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/qM9CYwj0/1-1-18.jpg',
+        'https://i.ibb.co/7NyM0Z4c/2-17.jpg',
+        'https://i.ibb.co/DgrSWC4w/3-19.jpg',
+        'https://i.ibb.co/N6MZxvyg/4-1-14.jpg',
+        'https://i.ibb.co/Q7LFxgtd/5-10.jpg'
+      ]},
+      {id:241,title:'Bölüm 241',date:'2026-06-23',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/gbx2zBkM/k-t-y-m-karde-im-se-ilmi-ki-i-241.jpg'
+      ]},
+      {id:242,title:'Bölüm 242',date:'2026-06-23',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/k75HxTc/1-1-20.jpg',
+        'https://i.ibb.co/Qj3b23n2/2-20.jpg',
+        'https://i.ibb.co/mVqrcQT0/3-21.jpg',
+        'https://i.ibb.co/8LXWF5rL/4-1-16.jpg'
+      ]},
+      {id:243,title:'Bölüm 243',date:'2026-06-23',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/LhPxQxnQ/k-t-y-m-karde-im-se-ilmi-ki-i-243.jpg'
+      ]},
+      {id:244,title:'Bölüm 244',date:'2026-06-23',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/TxG64ZNc/k-t-y-m-karde-im-se-ilmi-ki-i-244.jpg'
+      ]},
+      {id:245,title:'Bölüm 245',date:'2026-06-23',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/T39t4my/k-t-y-m-karde-im-se-ilmi-ki-i-245.jpg'
+      ]},
+      {id:246,title:'Bölüm 246',date:'2026-06-23',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/4nvvNsR1/k-t-y-m-karde-im-se-ilmi-ki-i-6.jpg'
+      ]},
+      {id:247,title:'Bölüm 247',date:'2026-06-23',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/hRvdD7Gz/1-1-25.jpg',
+        'https://i.ibb.co/CKv8B5S2/2-25.jpg',
+        'https://i.ibb.co/pr3FnLYk/3-26.jpg',
+        'https://i.ibb.co/ds7SqSJX/4-1-19.jpg'
+      ]},
+      {id:248,title:'Bölüm 248',date:'2026-06-23',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/Tq7XbRPz/k-t-y-m-karde-im-se-ilmi-ki-i-248.jpg'
+      ]},
+      {id:249,title:'Bölüm 249',date:'2026-06-23',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/LG3W2Zc/k-t-y-m-karde-im-se-ilmi-ki-i-249.jpg'
+      ]},
+      {id:250,title:'Bölüm 250',date:'2026-06-23',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/S4DnNgm0/k-t-y-m-karde-im-se-ilmi-ki-i-250.jpg'
+      ]},
+      {id:251,title:'Bölüm 251',date:'2026-06-25',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/XfbX6QVH/1-3.jpg',
+        'https://i.ibb.co/tw8bvWDV/2-33.jpg',
+        'https://i.ibb.co/LBBPrR7/3-34.jpg',
+        'https://i.ibb.co/xt2G6r3j/4-1-24.jpg'
+      ]},
+      {id:252,title:'Bölüm 252',date:'2026-06-25',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/39yKmCYt/1-4.jpg',
+        'https://i.ibb.co/C3rjjKPt/2-34.jpg',
+        'https://i.ibb.co/rfX4MnyN/3-35.jpg',
+        'https://i.ibb.co/BR4yhy2/4-1-25.jpg'
+      ]},
+      {id:253,title:'Bölüm 253',date:'2026-06-25',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/DPgxZ0Wb/1-5.jpg',
+        'https://i.ibb.co/3mnrZZFB/2-35.jpg',
+        'https://i.ibb.co/LDRqz22K/3-36.jpg',
+        'https://i.ibb.co/xqBYKDwV/4-1-26.jpg'
+      ]},
+      {id:254,title:'Bölüm 254',date:'2026-06-25',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/xKQD8yjx/1-6.jpg',
+        'https://i.ibb.co/JjnHztzQ/2-36.jpg',
+        'https://i.ibb.co/xK9TqKPB/3-37.jpg',
+        'https://i.ibb.co/T92QCPs/4-1-27.jpg'
+      ]},
+      {id:255,title:'Bölüm 255',date:'2026-06-25',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/N2zMhHHb/1-7.jpg',
+        'https://i.ibb.co/Sw891p1q/2-37.jpg',
+        'https://i.ibb.co/HThpMRt4/3-38.jpg',
+        'https://i.ibb.co/5XdtMKnh/4-1-28.jpg'
+      ]},
+      {id:256,title:'Bölüm 256',date:'2026-06-25',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/HZNSg0b/1-8.jpg',
+        'https://i.ibb.co/mCxXnkxY/2-38.jpg',
+        'https://i.ibb.co/rR510PVP/3-39.jpg',
+        'https://i.ibb.co/gb5HjhkR/4-1-29.jpg'
+      ]},
+      {id:257,title:'Bölüm 257',date:'2026-06-25',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/Y7jQZjG8/1-9.jpg',
+        'https://i.ibb.co/9mKmZL9N/2-39.jpg',
+        'https://i.ibb.co/ZR8qrqSd/3-40.jpg',
+        'https://i.ibb.co/ycX817m9/1-10.jpg'
+      ]},
+      {id:258,title:'Bölüm 258',date:'2026-06-25',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/mrXJZZ28/2-40.jpg',
+        'https://i.ibb.co/XZRFRhtK/3-41.jpg',
+        'https://i.ibb.co/hFXcv2h4/4-1-30.jpg',
+        'https://i.ibb.co/TMcp653K/1-11-2.jpg'
+      ]},
+      {id:259,title:'Bölüm 259',date:'2026-06-25',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/JwnWtjVT/2-41.jpg',
+        'https://i.ibb.co/21rrx0mg/3-42.jpg',
+        'https://i.ibb.co/pv5Q2VQy/4-1-31.jpg',
+        'https://i.ibb.co/PvPqQ3DM/1-12-2.jpg'
+      ]},
+      {id:260,title:'Bölüm 260',date:'2026-06-25',pages:[
+        'https://i.ibb.co/4w0VsrTq/Chat-GPT-mage-22-Haz-2026-20-40-50.png',
+        'https://i.ibb.co/zW6cZjpS/2-42.jpg',
+        'https://i.ibb.co/QvLyYHSb/3-43.jpg',
+        'https://i.ibb.co/KxtLMBMJ/5-15.jpg'
+      ]}
+    ]
+  },
+  {
+    id:'sadece-huzur-icinde-oyun-oynamak-istiyorum',
+    title:'Sadece Huzur İçinde Oyun Oynamak İstiyorum',
+    cover:'https://i.ibb.co/rf5qWBjs/1781825148704.png',
+    author:'LOKİ',
+    genres:['Aksiyon','Dövüş Sanatları','Fantazi'],
+    status:'Devam Ediyor',
+    prevUrl:'https://paradoxscans.com/seri/sadece-huzur-icinde-oyun-oynamak-istiyorum/',
+    views:3441,
+    monthlyViews:2237,
+    weeklyViews:1876,
+    dailyViews:156,
+    favorites:0,
+    updated:'2026-06-21',
+    description:"Bir damla kan hayat kurtarır. Başkaları oyun oynarken karaciğerleri patlıyor, ben de oyun oynuyorum. Boyutsal fırtına geldiğinde, dünyanın etrafında çok sayıda farklı boyutlu alan belirdi ve ölümsüzler, Budalar, iblisler, melekler, elfler ve benzeri çeşitli farklı boyutlu yaratıklar dünyaya geldi. Ama bu gizemli farklı boyutlu alanların hepsi mobil oyunların kopyaları haline geldi. Başkaları hayatlarını riske atıyor, ben ise umutsuzca oyun oynuyorum. Sadece Huzur İçinde Oyun Oynamak İstiyorum. Sadece Sessizce Oyun Oynamak İstiyorum.",
+    chapters:[
+      {id:90,title:'Bölüm 90',date:'2026-06-21',pages:[
+        'https://i.ibb.co/rf5qWBjs/1781825148704.png',
+        'https://i.ibb.co/Fk5TFXHv/02-1.jpg',
+        'https://i.ibb.co/4Rs50S0L/03-1.jpg',
+        'https://i.ibb.co/0jvnCT2R/04-1.jpg',
+        'https://i.ibb.co/Nnfc7h9m/05-1.jpg',
+        'https://i.ibb.co/9kkyFrHj/06-1.jpg',
+        'https://i.ibb.co/v6k1FMgy/07-1.jpg',
+        'https://i.ibb.co/JW48fnBV/08-1.jpg',
+        'https://i.ibb.co/7J21fsnm/09-1.jpg',
+        'https://i.ibb.co/CKBVh1PW/10-1-3.jpg',
+        'https://i.ibb.co/7tQ2Nhrz/12-1-3.jpg'
+      ]},
+      {id:91,title:'Bölüm 91',date:'2026-06-21',pages:[
+        'https://i.ibb.co/rf5qWBjs/1781825148704.png',
+        'https://i.ibb.co/pBkmsdTv/1714565046416833f8369c8-25358657-1.jpg',
+        'https://i.ibb.co/7NvCbTt9/5363767456416833f836cf7-17330831-1.jpg',
+        'https://i.ibb.co/WpyZcRXD/10919875456416833f836d88-36723624-1.jpg',
+        'https://i.ibb.co/Fq8sRr1Q/18819480526416833f836db7-79563772-1.jpg',
+        'https://i.ibb.co/4Qty4rv/5448957216416833f836de8-62279451-1.jpg',
+        'https://i.ibb.co/32T35s5/2418710856416833f836e15-25184433-1.jpg',
+        'https://i.ibb.co/KdvVHkB/5441796696416833f836e40-37019161-1.jpg',
+        'https://i.ibb.co/HfZ1xVnw/2701181136416833f836e76-89206215-1.jpg',
+        'https://i.ibb.co/60BvyFJQ/18702026376416833f836ea1-18309231-1.jpg',
+        'https://i.ibb.co/RTxvFXhY/5431545496416833f836ee2-38470604-1.jpg',
+        'https://i.ibb.co/SD4GbKBc/16078833726416833f836f19-66160727-1.jpg',
+        'https://i.ibb.co/q3RDzZRV/5932808766416833f836f45-45322734-1.jpg',
+        'https://i.ibb.co/p6tQLKRb/9636454716416833f836f66-72504042-1.jpg',
+        'https://i.ibb.co/6R5z2qPR/18894981456416833f836f92-73317415-1.jpg',
+        'https://i.ibb.co/RpVVwM6Y/3780330726416833f836fb4-84803313-1.jpg',
+        'https://i.ibb.co/0jby5cL5/3007395326416833f836fe9-12970055-1.jpg',
+        'https://i.ibb.co/v4xd9N9T/5729919896416833f837015-00208851-1.jpg',
+        'https://i.ibb.co/qS6kBzR/6832699416416833f837048-49457668-1.jpg',
+        'https://i.ibb.co/Z6DvTBYk/2587853016416833f837077-64552968-1.jpg'
+      ]},
+      {id:92,title:'Bölüm 92',date:'2026-06-21',pages:[
+        'https://i.ibb.co/rf5qWBjs/1781825148704.png',
+        'https://i.ibb.co/HTxL1Bjn/neko202-1.jpg',
+        'https://i.ibb.co/1fJBBFx0/neko203-1.jpg',
+        'https://i.ibb.co/LdWRTMs6/neko204-1.jpg',
+        'https://i.ibb.co/4RzWKrBj/neko205-1.jpg',
+        'https://i.ibb.co/3y6WGQJ5/neko206-1.jpg',
+        'https://i.ibb.co/Nd245f8N/neko207-1.jpg',
+        'https://i.ibb.co/7xC785xR/neko208-1.jpg'
+      ]}
+    ]
+  },
+  {
+    id:'yavru-ejderha-oldum',
+    title:'Yavru Ejderha Oldum',
+    cover:'https://i.ibb.co/Qv4JFTPW/42ef3f4f-c29a-48b8-99dd-48af26628247.png',
+    author:'LOKİ',
+    genres:['Aksiyon','Doğa','Drama','Fantazi','Gündelik Yaşam','Komedi','Romantizm'],
+    status:'Yetişildi',
+    prevUrl:'https://paradoxscans.com/seri/yavru-ejderha-oldum/',
+    views:3788,
+    monthlyViews:2461,
+    weeklyViews:614,
+    dailyViews:92,
+    favorites:0,
+    updated:'2026-06-30',
+    description:"Ben… İlahi Kara Ejderhanın Imugi'siyim! “Kyua!!!!” 999 yaşında olan Imugi, yükselişine sadece bir yıl kala acımasızca öldürüldü. Ama sonunda gözlerini açtığında… bir yaşında bir yavru muymuş?! Böylece, geçmişteki benliğine dair tüm anıları eksiksiz bir şekilde korunmuş olarak ikinci hayatı başlıyor. İlk kez koşulsuz sevgiye maruz kalan kalbi, önce yavaş yavaş, sonra birdenbire yumuşamaya başlar. Yeni yol arkadaşları bulup etrafındaki dünyayı keşfederken, her zaman olması gereken ejderhaya dönüşmek için yola koyulur. Yavru Rune'un ikinci hayatı başlıyor!",
+    chapters:[
+      {id:11,title:'Bölüm 11',date:'2026-06-21',pages:[
+        'https://i.ibb.co/Qv4JFTPW/42ef3f4f-c29a-48b8-99dd-48af26628247.png',
+        'https://i.ibb.co/VWK7QLdL/0001.jpg',
+        'https://i.ibb.co/ymxVFZJw/0002-1.jpg',
+        'https://i.ibb.co/XkW6yZvb/0003.jpg',
+        'https://i.ibb.co/5gq2rJhF/0004.jpg',
+        'https://i.ibb.co/jPy7ptCG/0005.jpg',
+        'https://i.ibb.co/3YNjZ3qR/0006.jpg',
+        'https://i.ibb.co/35tRrXXm/0007.jpg',
+        'https://i.ibb.co/qLhvPB0G/0008.jpg',
+        'https://i.ibb.co/Vc0c7wYq/0009.jpg'
+      ]},
+      {id:12,title:'Bölüm 12',date:'2026-06-21',pages:[
+        'https://i.ibb.co/Qv4JFTPW/42ef3f4f-c29a-48b8-99dd-48af26628247.png',
+        'https://i.ibb.co/Zzr8Q8v9/0001-1.webp',
+        'https://i.ibb.co/qFDG5r3y/0002.webp',
+        'https://i.ibb.co/z1RcY1D/0003-1.webp',
+        'https://i.ibb.co/bgYsD3VD/0004-1.webp',
+        'https://i.ibb.co/GvV0BB3m/0005-1.jpg',
+        'https://i.ibb.co/Cs8BfQHb/0006-1.jpg',
+        'https://i.ibb.co/zWvqgtv8/0007-1.jpg',
+        'https://i.ibb.co/zHxS6s6k/0008-1.webp',
+        'https://i.ibb.co/C5dVL9BM/0009-1.webp',
+        'https://i.ibb.co/wZ49rsP1/0010.webp',
+        'https://i.ibb.co/zVZNtC3b/0011-1.jpg',
+        'https://i.ibb.co/kVgBd8my/0012.webp',
+        'https://i.ibb.co/gFRLMj69/12-1-4.jpg',
+        'https://i.ibb.co/0y67SzSN/13-1-3.jpg',
+        'https://i.ibb.co/8LkSshcn/14-1-3.jpg',
+        'https://i.ibb.co/JWDpkH4y/15-1-3.jpg',
+        'https://i.ibb.co/Q39Sssbq/16-1-3.jpg',
+        'https://i.ibb.co/G4Lw0CQV/17-1-3.jpg',
+        'https://i.ibb.co/rKFMPtcC/18-1-3.jpg',
+        'https://i.ibb.co/vxc7gSgX/19-1-3.jpg',
+        'https://i.ibb.co/LzwGx26v/20-1-3.jpg',
+        'https://i.ibb.co/8Lg3TgdX/21-1-3.jpg',
+        'https://i.ibb.co/Q3cZfy2X/22-1-3.jpg',
+        'https://i.ibb.co/pBdn4rqd/23-1-3.jpg',
+        'https://i.ibb.co/SXcbQznM/24-1-3.jpg',
+        'https://i.ibb.co/ccnHWZP4/25-1-3.jpg',
+        'https://i.ibb.co/KcL1hTKS/26-1-3.jpg',
+        'https://i.ibb.co/BKCJMn2M/27-1-3.jpg'
+      ]},
+      {id:13,title:'Bölüm 13',date:'2026-06-25',pages:[
+        'https://i.ibb.co/Qv4JFTPW/42ef3f4f-c29a-48b8-99dd-48af26628247.png',
+        'https://i.ibb.co/HDrF6nCg/Zombo-Droid-25062026113755.jpg',
+        'https://i.ibb.co/PGCv9Fmq/Zombo-Droid-25062026113835.jpg',
+        'https://i.ibb.co/Yv09WZj/Zombo-Droid-25062026113914.jpg'
+      ]},
+      {id:14,title:'Bölüm 14',date:'2026-06-30',pages:[
+        'https://i.ibb.co/Qv4JFTPW/42ef3f4f-c29a-48b8-99dd-48af26628247.png',
+        'https://i.ibb.co/Qjb413zB/Zombo-Droid-30062026142704.jpg',
+        'https://i.ibb.co/fG8wbC4m/Zombo-Droid-30062026142759.jpg',
+        'https://i.ibb.co/B53PLr2x/Zombo-Droid-30062026142836.jpg'
+      ]}
+    ]
+  },
+  {
+    id:'goksel-seytanin-seytan-aleminden-yayini',
+    title:'Göksel Şeytanın Şeytanlar Âleminden Yayını',
+    isOriginal:true,
+    cover:'https://i.ibb.co/Rk5CmpJH/Chat-GPT-mage-23-Haz-2026-07-30-36.png',
+    author:'LOKİ',
+    genres:['Aksiyon','Komedi','Fantezi','Dövüş Sanatları','Yayıncı'],
+    status:'Yetişildi',
+    views:7891,
+    monthlyViews:5123,
+    weeklyViews:1731,
+    dailyViews:267,
+    favorites:0,
+    updated:'2026-07-01',
+    description:"Gökyüzünün altında en üstün, tüm diyarda eşsiz! Cennet Şeytanı ve dövüş dünyasının en büyük savaşçısı Chi Yu-rang, bilinmeyen bir güç tarafından \"Şeytan Diyarı\" adı verilen gizemli bir adada hapsedilir. On yıl süren yalnız hayatta kalma mücadelesinin ardından, gizemli bir cihaz aracılığıyla dört dünyanın birleştiğini keşfeder. Dış dünyayla yeniden bağlantı kurmak ve kendi hayatta kalmasını sağlamak için radikal bir karar alır: genç bir kızın bedeninde gençliğine geri döner. \"Teşekkür ederim, Cennet Şeytanı-nyan~! ☆\" Bir zamanlar korkunç olan Cennet Şeytanı Chi Yu-rang, artık \"Cennet Şeytanı-chan\" lakabıyla anılıyor ve güzel bir genç kız olarak yeniden doğuyor. Kwitch yayın platformunu fethetmeli ve Şeytan Diyarı'ndan kaçmanın bir yolunu bulmalıdır.",
+    chapters:[
+      {id:1,title:'Bölüm 1',date:'2026-06-23',pages:[
+        'https://i.ibb.co/Rk5CmpJH/Chat-GPT-mage-23-Haz-2026-07-30-36.png',
+        'https://i.ibb.co/DPPD4bcf/Zombo-Droid-23062026071139.jpg',
+        'https://i.ibb.co/rRRdYdrp/Zombo-Droid-23062026071257.jpg',
+        'https://i.ibb.co/k2mdQqXD/Zombo-Droid-23062026071826.jpg',
+        'https://i.ibb.co/YF0fmYCk/Zombo-Droid-23062026071925.jpg',
+        'https://i.ibb.co/20dDb39j/Zombo-Droid-23062026072417.jpg',
+        'https://i.ibb.co/yv2zV3r/Zombo-Droid-23062026072449.jpg'
+      ]},
+      {id:2,title:'Bölüm 2',date:'2026-06-23',pages:[
+        'https://i.ibb.co/Rk5CmpJH/Chat-GPT-mage-23-Haz-2026-07-30-36.png',
+        'https://i.ibb.co/JwHfLhWz/Zombo-Droid-23062026074104.jpg',
+        'https://i.ibb.co/DHd6dLmd/Zombo-Droid-23062026074234.jpg',
+        'https://i.ibb.co/0jfK0j3P/Zombo-Droid-23062026074334.jpg',
+        'https://i.ibb.co/ZRVFzLRX/Zombo-Droid-23062026074520.jpg'
+      ]},
+      {id:3,title:'Bölüm 3',date:'2026-07-01',pages:[
+        'https://i.ibb.co/Rk5CmpJH/Chat-GPT-mage-23-Haz-2026-07-30-36.png',
+        'https://i.ibb.co/5zP5zQQ/Zombo-Droid-01072026185128.jpg',
+        'https://i.ibb.co/ZRqTcxHs/Zombo-Droid-01072026185202.jpg',
+        'https://i.ibb.co/bjYrgwcG/Zombo-Droid-01072026185239.jpg',
+        'https://i.ibb.co/4wLpgG07/Zombo-Droid-01072026185321.jpg',
+        'https://i.ibb.co/ycp7fzPH/Zombo-Droid-01072026185346.jpg'
+      ]},
+      {id:4,title:'Bölüm 4',date:'2026-06-23',pages:[
+        'https://i.ibb.co/Rk5CmpJH/Chat-GPT-mage-23-Haz-2026-07-30-36.png',
+        'https://i.ibb.co/JwD71brn/Zombo-Droid-23062026082733.jpg',
+        'https://i.ibb.co/1fghJt6z/Zombo-Droid-23062026082809.jpg',
+        'https://i.ibb.co/9kNpQ1sf/15-1-8.jpg',
+        'https://i.ibb.co/Gv0fc3zK/16-1-8.jpg',
+        'https://i.ibb.co/gZJ9Wx9x/17-1-7.jpg',
+        'https://i.ibb.co/VYsybJNw/18-1-8.jpg',
+        'https://i.ibb.co/d08Fhg1q/19-1-8.jpg',
+        'https://i.ibb.co/zH5F0Mnv/20-1-7.jpg'
+      ]},
+      {id:5,title:'Bölüm 5',date:'2026-07-01',pages:[
+        'https://i.ibb.co/Rk5CmpJH/Chat-GPT-mage-23-Haz-2026-07-30-36.png',
+        'https://i.ibb.co/0VvPs7YK/Zombo-Droid-01072026185642.jpg',
+        'https://i.ibb.co/1tJbwfDD/Zombo-Droid-01072026185754.jpg',
+        'https://i.ibb.co/mVb8MTmm/Zombo-Droid-01072026185839.jpg',
+        'https://i.ibb.co/2YZxpF4P/Zombo-Droid-01072026185906.jpg'
+      ]},
+      {id:6,title:'Bölüm 6',date:'2026-06-25',pages:[
+        'https://i.ibb.co/Rk5CmpJH/Chat-GPT-mage-23-Haz-2026-07-30-36.png',
+        'https://i.ibb.co/WNcrnG9F/Zombo-Droid-23062026231914.jpg',
+        'https://i.ibb.co/B29Tmwzx/Zombo-Droid-23062026232140.jpg',
+        'https://i.ibb.co/8Cv4G6F/Zombo-Droid-23062026232207.jpg',
+        'https://i.ibb.co/0yLP5Rkk/Zombo-Droid-23062026232035.jpg'
+      ]},
+      {id:7,title:'Bölüm 7',date:'2026-07-01',pages:[
+        'https://i.ibb.co/Rk5CmpJH/Chat-GPT-mage-23-Haz-2026-07-30-36.png',
+        'https://i.ibb.co/2YcR35pW/Zombo-Droid-01072026160918.jpg',
+        'https://i.ibb.co/nN63Sj9r/Zombo-Droid-01072026160952.jpg',
+        'https://i.ibb.co/6JZ4T3Jq/Zombo-Droid-01072026161036.jpg',
+        'https://i.ibb.co/0RwtsNGW/Zombo-Droid-01072026161125.jpg'
+      ]}
+    ]
+  },
+  {
+    id:'ben-kader-kötü-adami',
+    title:'Ben Kaderin Kötü Adamıyım',
+    cover:'https://i.ibb.co/ks4PK2mQ/Chat-GPT-mage-23-Haz-2026-03-54-41.png',
+    author:'LOKİ',
+    genres:['Aksiyon','Büyü','Çin','Dövüş Sanatları','Drama'],
+    status:'Yetişildi',
+    prevUrl:'https://paradoxscans.com/seri/i-am-the-fated-villain/',
+    views:4515,
+    monthlyViews:2900,
+    weeklyViews:730,
+    dailyViews:115,
+    favorites:0,
+    updated:'2026-07-06',
+    description:"Gu Changge, bir fantezi dünyasına girdiğini fark eder etmez, dünyanın kahramanı ve kaderin seçtiği kişi ondan intikam almaya yemin etti. Herkesin kıskandığı Gu Changge, sadece kadın başrol oyuncusunun aklını başından almakla kalmıyor, gittiği her yerde de seçkin bir misafir olarak ağırlanıyor. Neyse ki, Gu Changge'nin prestiji ve gücü herkesten üstün, bu yüzden sıradan bir kaderin seçtiği kişiyi ezmek kolay olmalı değil mi? Durun bir dakika... Kahramandan faydalanmak ve onu sömürmek için özel bir sistem mi var? Gu Changge sırıttı. \"Görünüşe göre kader bile bu dünyanın Kötü Adamı olarak kaderimi yerine getirmemi istiyor!\"",
+    chapters:[
+      {id:337,title:'Bölüm 337',date:'2026-06-23',pages:[
+        'https://i.ibb.co/ks4PK2mQ/Chat-GPT-mage-23-Haz-2026-03-54-41.png',
+        'https://i.ibb.co/V0Zb8ZWV/i-am-the-fated-villian-337.jpg',
+        'https://i.ibb.co/rKJrkYRn/Zombo-Droid-23062026040938.jpg'
+      ]},
+      {id:338,title:'Bölüm 338',date:'2026-06-23',pages:[
+        'https://i.ibb.co/ks4PK2mQ/Chat-GPT-mage-23-Haz-2026-03-54-41.png',
+        'https://i.ibb.co/JjShh066/1-2.jpg',
+        'https://i.ibb.co/ccRTWm58/2-3.jpg',
+        'https://i.ibb.co/0VpV2Tm8/3-3.jpg',
+        'https://i.ibb.co/QFhy2h2h/4-3.jpg',
+        'https://i.ibb.co/SD4zwC8Y/5-2-1.jpg'
+      ]},
+      {id:339,title:'Bölüm 339',date:'2026-06-23',pages:[
+        'https://i.ibb.co/ks4PK2mQ/Chat-GPT-mage-23-Haz-2026-03-54-41.png',
+        'https://i.ibb.co/2Yv6K5kV/Zombo-Droid-23062026041231.jpg',
+        'https://i.ibb.co/gM8NGsgg/Zombo-Droid-23062026041315.jpg'
+      ]},
+      {id:340,title:'Bölüm 340',date:'2026-06-29',pages:[
+        'https://i.ibb.co/ks4PK2mQ/Chat-GPT-mage-23-Haz-2026-03-54-41.png',
+        'https://i.ibb.co/Y74S5js1/Zombo-Droid-29062026111646.jpg',
+        'https://i.ibb.co/0Vpj40jc/Zombo-Droid-29062026111716.jpg',
+        'https://i.ibb.co/qYWzD7S4/Zombo-Droid-29062026111749.jpg'
+      ]},
+      {id:341,title:'Bölüm 341',date:'2026-06-30',pages:[
+        'https://i.ibb.co/ks4PK2mQ/Chat-GPT-mage-23-Haz-2026-03-54-41.png',
+        'https://i.ibb.co/zH5L95jD/Zombo-Droid-30062026141823.jpg',
+        'https://i.ibb.co/5XHh70xc/Zombo-Droid-30062026141949.jpg'
+      ]},
+      {id:342,title:'Bölüm 342',date:'2026-07-06',pages:[
+        'https://i.ibb.co/ks4PK2mQ/Chat-GPT-mage-23-Haz-2026-03-54-41.png',
+        'https://i.ibb.co/v4M42ssP/Zombo-Droid-06072026110548.jpg',
+        'https://i.ibb.co/m5K2yyDH/Zombo-Droid-06072026110621.jpg'
+      ]}
+    ]
+  },
+  {
+    id:'masaldaki-kotunun-kusursuz-son-plani',
+    title:'Masaldaki Kötünün Kusursuz Son Planı',
+    cover:'https://i.ibb.co/cSDQFcKC/Chat-GPT-mage-29-Haz-2026-13-41-43.png',
+    author:'LOKİ',
+    genres:['Drama','Fantazi','Romantizm'],
+    status:'Devam Ediyor',
+    prevUrl:'https://manga-sehri.com/manga/kotu-kadinin-peri-masalini-kusursuz-bitirme-plani/',
+    views:15195,
+    monthlyViews:9800,
+    weeklyViews:1560,
+    dailyViews:235,
+    favorites:0,
+    updated:'2026-07-06',
+    description:"Gözyaşları elmasa dönüşen bir peri masalının kahramanı. Ben... onun kötü kız kardeşini ele geçirmiştim. Geçmekte olan prensin küçük kız kardeşime aşık olup evlenmesine ve kahramanı taciz eden ailenin idam edilmesine üç yıl kalmıştı. 'Prensi bulup kahramanı da yanına alarak bir yaşam planı yapmayı tercih ederim.' Olayların iniş çıkışlarından sonra prensi bulmak güzeldi... \"Lütfen benimle evlen.\" Prens tek dizinin üzerine çöktü. Önümde. Orada değil mi? Kız kardeşimle evlenmek zorunda değil misin?",
+    chapters:[
+      {id:60,title:'Bölüm 60',date:'2026-06-29',pages:[
+        'https://i.ibb.co/cSDQFcKC/Chat-GPT-mage-29-Haz-2026-13-41-43.png',
+        'https://i.ibb.co/gZVzKGLM/1-7.jpg',
+        'https://i.ibb.co/TBXhfzbF/2-34.jpg',
+        'https://i.ibb.co/YBsS9TKx/3-35.jpg',
+        'https://i.ibb.co/ZR9vRGQm/4-6.jpg'
+      ]},
+      {id:61,title:'Bölüm 61',date:'2026-06-29',pages:[
+        'https://i.ibb.co/cSDQFcKC/Chat-GPT-mage-29-Haz-2026-13-41-43.png',
+        'https://i.ibb.co/1fggNZh3/1-6.jpg',
+        'https://i.ibb.co/0pSt5PFx/2-35.jpg',
+        'https://i.ibb.co/1JMRPPy5/3-36.jpg',
+        'https://i.ibb.co/jkj2pTpq/4-7.jpg'
+      ]},
+      {id:62,title:'Bölüm 62',date:'2026-06-29',pages:[
+        'https://i.ibb.co/cSDQFcKC/Chat-GPT-mage-29-Haz-2026-13-41-43.png',
+        'https://i.ibb.co/RkbC8tJ2/1-8.jpg',
+        'https://i.ibb.co/Wv1Ck5Y0/2-36.jpg',
+        'https://i.ibb.co/BKK6KDv2/3-37.jpg',
+        'https://i.ibb.co/9k1PZwgg/4-8.jpg',
+        'https://i.ibb.co/wFvDX6yJ/5-18.jpg'
+      ]},
+      {id:63,title:'Bölüm 63',date:'2026-06-29',pages:[
+        'https://i.ibb.co/cSDQFcKC/Chat-GPT-mage-29-Haz-2026-13-41-43.png',
+        'https://i.ibb.co/3YP57T0s/1-9.jpg',
+        'https://i.ibb.co/s7c6n5H/2-37.jpg',
+        'https://i.ibb.co/m5S0QpP8/3-38.jpg',
+        'https://i.ibb.co/MDx37fMt/4-9.jpg',
+        'https://i.ibb.co/kVGmBW4c/5-16.jpg'
+      ]},
+      {id:64,title:'Bölüm 64',date:'2026-06-29',pages:[
+        'https://i.ibb.co/cSDQFcKC/Chat-GPT-mage-29-Haz-2026-13-41-43.png',
+        'https://i.ibb.co/jv9HXtjj/1-10.jpg',
+        'https://i.ibb.co/tTDKqYvV/2-38.jpg',
+        'https://i.ibb.co/995D0gH1/3-39.jpg',
+        'https://i.ibb.co/xtXbmQYB/4-10.jpg',
+        'https://i.ibb.co/TQCMcfk/5-17.jpg'
+      ]},
+      {id:65,title:'Bölüm 65',date:'2026-07-01',pages:[
+        'https://i.ibb.co/cSDQFcKC/Chat-GPT-mage-29-Haz-2026-13-41-43.png',
+        'https://i.ibb.co/B5dW0Mp6/1-11-2.jpg',
+        'https://i.ibb.co/j9cdrXBt/2-39.jpg',
+        'https://i.ibb.co/qY7P8ycD/3-40.jpg',
+        'https://i.ibb.co/bRq7N168/4-11.jpg',
+        'https://i.ibb.co/JWGZRYqn/5-19.jpg'
+      ]},
+      {id:66,title:'Bölüm 66',date:'2026-07-01',pages:[
+        'https://i.ibb.co/cSDQFcKC/Chat-GPT-mage-29-Haz-2026-13-41-43.png',
+        'https://i.ibb.co/pg47vtR/1-12-2.jpg',
+        'https://i.ibb.co/5XnbLmLm/2-40.jpg',
+        'https://i.ibb.co/HT1nSnT2/3-41.jpg',
+        'https://i.ibb.co/BKZLf3tT/4-12.jpg',
+        'https://i.ibb.co/DfHyXy6J/5-20.jpg'
+      ]},
+      {id:67,title:'Bölüm 67',date:'2026-07-01',pages:[
+        'https://i.ibb.co/cSDQFcKC/Chat-GPT-mage-29-Haz-2026-13-41-43.png',
+        'https://i.ibb.co/5h6j1jsL/1-13-2.jpg',
+        'https://i.ibb.co/N64PFt2J/2-41.jpg',
+        'https://i.ibb.co/zWS0xnfT/3-42.jpg',
+        'https://i.ibb.co/3ywggvJJ/4-13.jpg',
+        'https://i.ibb.co/Tx5MDmSk/10-1-8.jpg'
+      ]},
+      {id:68,title:'Bölüm 68',date:'2026-07-01',pages:[
+        'https://i.ibb.co/cSDQFcKC/Chat-GPT-mage-29-Haz-2026-13-41-43.png',
+        'https://i.ibb.co/Q3FJkDLs/1-14-2.jpg',
+        'https://i.ibb.co/gbzHgM4G/2-42.jpg',
+        'https://i.ibb.co/Gvt40SBg/3-43.jpg',
+        'https://i.ibb.co/rRcSJm5p/4-14.jpg',
+        'https://i.ibb.co/WNbmG7Mm/5-21.jpg'
+      ]},
+      {id:69,title:'Bölüm 69',date:'2026-07-01',pages:[
+        'https://i.ibb.co/cSDQFcKC/Chat-GPT-mage-29-Haz-2026-13-41-43.png',
+        'https://i.ibb.co/Z6S28nJJ/2-43.jpg',
+        'https://i.ibb.co/JFjBmFkj/3-44.jpg',
+        'https://i.ibb.co/n8QWTYv1/1-15-2.jpg',
+        'https://i.ibb.co/gLJgLc4H/4-15.jpg',
+        'https://i.ibb.co/S2FWYF9/5-22.jpg'
+      ]},
+      {id:70,title:'Bölüm 70',date:'2026-07-01',pages:[
+        'https://i.ibb.co/cSDQFcKC/Chat-GPT-mage-29-Haz-2026-13-41-43.png',
+        'https://i.ibb.co/Kxswpm60/1-16-2.jpg',
+        'https://i.ibb.co/gbgYN3t6/3-45.jpg',
+        'https://i.ibb.co/fYLvQbv3/4-16.jpg',
+        'https://i.ibb.co/PsNJ2vwG/2-44.jpg',
+        'https://i.ibb.co/VYhw4JXM/5-23.jpg'
+      ]},
+      {id:71,title:'Bölüm 71',date:'2026-07-02',pages:[
+        'https://i.ibb.co/cSDQFcKC/Chat-GPT-mage-29-Haz-2026-13-41-43.png',
+        'https://i.ibb.co/39KX0dgL/Zombo-Droid-02072026175555.jpg',
+        'https://i.ibb.co/bgQv2tZJ/2-34-1.jpg',
+        'https://i.ibb.co/svXVYtHY/3-35-1.jpg',
+        'https://i.ibb.co/YFrS4sfR/4-6-1.jpg'
+      ]},
+      {id:72,title:'Bölüm 72',date:'2026-07-02',pages:[
+        'https://i.ibb.co/cSDQFcKC/Chat-GPT-mage-29-Haz-2026-13-41-43.png',
+        'https://i.ibb.co/FkGY3nBL/1-6-2.jpg',
+        'https://i.ibb.co/TBCNT7r0/2-34-2.jpg',
+        'https://i.ibb.co/tP1nmhJM/3-35-2.jpg',
+        'https://i.ibb.co/5X7Xk1F4/4-6-2.jpg',
+        'https://i.ibb.co/LX3Cn2mB/5-16-1.jpg'
+      ]},
+      {id:73,title:'Bölüm 73',date:'2026-07-02',pages:[
+        'https://i.ibb.co/cSDQFcKC/Chat-GPT-mage-29-Haz-2026-13-41-43.png',
+        'https://i.ibb.co/F4PYg6dX/1-6-3.jpg',
+        'https://i.ibb.co/0Rm0XVWj/2-34-3.jpg',
+        'https://i.ibb.co/qYyH9Mcj/3-35-3.jpg',
+        'https://i.ibb.co/JR7NFBRN/4-6-3.jpg'
+      ]},
+      {id:74,title:'Bölüm 74',date:'2026-07-04',pages:[
+        'https://i.ibb.co/cSDQFcKC/Chat-GPT-mage-29-Haz-2026-13-41-43.png',
+        'https://i.ibb.co/N6mTfc5s/Zombo-Droid-04072026234530.jpg',
+        'https://i.ibb.co/tTB0k6Jx/2-34-4.jpg',
+        'https://i.ibb.co/gZRp30Qf/3-35-4.jpg',
+        'https://i.ibb.co/HDCZn2S1/4-1-21.jpg',
+        'https://i.ibb.co/v4XXz3BS/5-16-2.jpg'
+      ]},
+      {id:75,title:'Bölüm 75',date:'2026-07-06',pages:[
+        'https://i.ibb.co/cSDQFcKC/Chat-GPT-mage-29-Haz-2026-13-41-43.png',
+        'https://i.ibb.co/9mTpQZF5/Zombo-Droid-06072026115607.jpg',
+        'https://i.ibb.co/9mg3q4JG/2-35-1.jpg',
+        'https://i.ibb.co/nsB1V5Gt/3-36-1.jpg',
+        'https://i.ibb.co/PsS5nq0d/4-1-22.jpg',
+        'https://i.ibb.co/RTm4sbqG/5-17-1.jpg'
+      ]},
+      {id:76,title:'Bölüm 76',date:'2026-07-06',pages:[
+        'https://i.ibb.co/cSDQFcKC/Chat-GPT-mage-29-Haz-2026-13-41-43.png',
+        'https://i.ibb.co/84Gspk5F/Zombo-Droid-06072026120227.jpg',
+        'https://i.ibb.co/gFScz4MM/2-36-1.jpg',
+        'https://i.ibb.co/bjLSsxZb/3-37-1.jpg',
+        'https://i.ibb.co/TB6YqBnd/4-1-23.jpg'
+      ]}
+    ]
+  },
+  {
+    id:'kahramanin-takintili-oldugu-kotu-adam',
+    title:'Kahramanın Takıntılı Olduğu Kötü Adam',
+    cover:'https://i.ibb.co/5hKWxBbS/Chat-GPT-mage-29-Haz-2026-19-33-43.png',
+    author:'LOKİ',
+    genres:['Aksiyon','Büyü','Geri Dönüş'],
+    status:'Sezon Finali',
+    prevUrl:'https://paradoxscans.com/seri/kahramanin-takintili-oldugu-kotu-adam-ben-oldum/',
+    views:3847,
+    monthlyViews:2513,
+    weeklyViews:731,
+    dailyViews:119,
+    favorites:0,
+    updated:'2026-06-29',
+    description:'Dain, aniden kendini en sevdiği süper kahraman çizgi romanının sayfalarında bulur; ancak bu sefer sevilen kahraman olarak değil, kötü adam Egoistic olarak. Orijinal hikayede, çok sevdiği karakter Stardust, acımasız ve trajik bir kaderle karşı karşıyadır. Bu kaderi yeniden yazmaya kararlı olan Dain, kötü adam rolünü mükemmel bir şekilde oynamaya karar verir: saldırılar düzenler, çatışmalar başlatır ve Stardust\'ı daha güçlü olmaya zorlar. Bu süreçte Dain, bir zamanlar Stardust\'ın hayatını mahveden felaket ve yürek burkan olayları zekice önler. Ancak "kötülüğü" sadece Stardust\'ın güçlerini artırmakla kalmaz, aynı zamanda halkın sempatisini ve garip bir şekilde Stardust\'ın giderek artan şüphesini de kazanır. Kurtarılması gereken kahraman... artık kötü adamını bırakmayı reddeder.',
+    chapters:[
+      {id:57,title:'Bölüm 57',date:'2026-06-29',pages:[
+        'https://i.ibb.co/5hKWxBbS/Chat-GPT-mage-29-Haz-2026-19-33-43.png',
+        'https://i.ibb.co/xqvrLCvk/Zombo-Droid-29062026190003.jpg',
+        'https://i.ibb.co/Hfg7YJGs/Zombo-Droid-29062026190052.jpg',
+        'https://i.ibb.co/JFSntVhK/Zombo-Droid-29062026190139.jpg',
+        'https://i.ibb.co/LXJFKfsb/Zombo-Droid-29062026190216.jpg'
+      ]},
+      {id:58,title:'Bölüm 58',date:'2026-06-29',pages:[
+        'https://i.ibb.co/5hKWxBbS/Chat-GPT-mage-29-Haz-2026-19-33-43.png',
+        'https://i.ibb.co/gLG8P0SF/Zombo-Droid-29062026190934.jpg',
+        'https://i.ibb.co/SXkBQzrZ/Zombo-Droid-29062026191027.jpg',
+        'https://i.ibb.co/gFdh3n5P/Zombo-Droid-29062026191059.jpg',
+        'https://i.ibb.co/PGWD54Cc/Zombo-Droid-29062026191133.jpg'
+      ]},
+      {id:59,title:'Bölüm 59',date:'2026-06-29',pages:[
+        'https://i.ibb.co/5hKWxBbS/Chat-GPT-mage-29-Haz-2026-19-33-43.png',
+        'https://i.ibb.co/rGNdLvnj/Zombo-Droid-29062026191323.jpg',
+        'https://i.ibb.co/3YVzwQgj/Zombo-Droid-29062026191450.jpg',
+        'https://i.ibb.co/v7RM45B/Zombo-Droid-29062026191535.jpg'
+      ]},
+      {id:60,title:'Bölüm 60',date:'2026-06-29',pages:[
+        'https://i.ibb.co/5hKWxBbS/Chat-GPT-mage-29-Haz-2026-19-33-43.png',
+        'https://i.ibb.co/fJQwnzg/Zombo-Droid-29062026192737.jpg',
+        'https://i.ibb.co/mCsq6vB0/Zombo-Droid-29062026192902.jpg',
+        'https://i.ibb.co/R4dH8Sx4/Zombo-Droid-29062026193013.jpg',
+        'https://i.ibb.co/GvCSMY9B/Zombo-Droid-29062026193107.jpg'
+      ]}
+    ]
+  },
+  {
+    id:'ikinci-hadim-erkekligini-yeniden-kazaniyor',
+    title:'İkinci Hadım Erkekliğini Yeniden Kazanıyor',
+    cover:'https://i.ibb.co/yBgGKQVc/Chat-GPT-mage-22-Haz-2026-23-55-50.png',
+    author:'LOKİ',
+    genres:['Aksiyon','Reenkarnasyon'],
+    status:'Yetişildi',
+    prevUrl:'https://paradoxscans.com/seri/ikinci-hadim-erkekligini-yeniden-kazaniyor/',
+    views:4885,
+    monthlyViews:3070,
+    weeklyViews:785,
+    dailyViews:135,
+    favorites:0,
+    updated:'2026-07-06',
+    description:'İmparatorluğun işlerini dilediğince kontrol eden gizli bir güç figürü olan hadım Lee Cheolsu. Mutlak güce, servete ve hatta güçlü dövüş sanatları becerilerine sahip... ama bu ne anlama geliyor? Eğer "bunu" yapamıyorsa!! Cheolsu, reenkarnasyon tekniği sayesinde hadım olmadan önceki zamana geri döner. Aklında tek bir hedef vardır: alfa erkek olmak ve en güzel kadınlarla hayatın tadını çıkarmak!',
+    chapters:[
+      {id:85,title:'Bölüm 85',date:'2026-06-22',pages:[
+        'https://i.ibb.co/yBgGKQVc/Chat-GPT-mage-22-Haz-2026-23-55-50.png',
+        'https://i.ibb.co/whZRrp68/Zombo-Droid-23062026002601-1.jpg',
+        'https://i.ibb.co/HDTtF95q/Zombo-Droid-23062026002847.jpg',
+        'https://i.ibb.co/m5p8kHDG/Zombo-Droid-23062026003235.jpg',
+        'https://i.ibb.co/zcK7ks6/Zombo-Droid-23062026003349.jpg',
+        'https://i.ibb.co/sdhN6NWS/Zombo-Droid-23062026003429.jpg',
+        'https://i.ibb.co/tppVV7qN/page-0045-15-1778004432735-92115.webp'
+      ]},
+      {id:86,title:'Bölüm 86',date:'2026-06-24',pages:[
+        'https://i.ibb.co/yBgGKQVc/Chat-GPT-mage-22-Haz-2026-23-55-50.png',
+        'https://i.ibb.co/6cc7Jc7N/Zombo-Droid-24062026110154.jpg',
+        'https://i.ibb.co/vvB7QjHN/Zombo-Droid-24062026110258.jpg',
+        'https://i.ibb.co/G3pcx7s7/Zombo-Droid-24062026110437.jpg',
+        'https://i.ibb.co/4wLvRZBx/Zombo-Droid-24062026110542.jpg',
+        'https://i.ibb.co/DHZ1Q9gj/Zombo-Droid-24062026110637.jpg'
+      ]},
+      {id:87,title:'Bölüm 87',date:'2026-06-24',pages:[
+        'https://i.ibb.co/yBgGKQVc/Chat-GPT-mage-22-Haz-2026-23-55-50.png',
+        'https://i.ibb.co/HLsTV6cF/Zombo-Droid-24062026111837.jpg',
+        'https://i.ibb.co/TDGXgwHT/Zombo-Droid-24062026111915.jpg',
+        'https://i.ibb.co/tMVGGQ3L/Zombo-Droid-24062026112000.jpg',
+        'https://i.ibb.co/MDmjKGMw/Zombo-Droid-24062026112101.jpg',
+        'https://i.ibb.co/SXn1pt3D/Zombo-Droid-24062026112253.jpg'
+      ]},
+      {id:88,title:'Bölüm 88',date:'2026-06-24',pages:[
+        'https://i.ibb.co/yBgGKQVc/Chat-GPT-mage-22-Haz-2026-23-55-50.png',
+        'https://i.ibb.co/DH3LXXNS/Zombo-Droid-24062026113355.jpg',
+        'https://i.ibb.co/1YZGQbFh/Zombo-Droid-24062026113448.jpg',
+        'https://i.ibb.co/chsP3cvW/Zombo-Droid-24062026113531.jpg',
+        'https://i.ibb.co/23sc1L3x/Zombo-Droid-24062026113609.jpg',
+        'https://i.ibb.co/4gCtx1Ww/Zombo-Droid-24062026113643.jpg'
+      ]},
+      {id:89,title:'Bölüm 89',date:'2026-06-29',pages:[
+        'https://i.ibb.co/yBgGKQVc/Chat-GPT-mage-22-Haz-2026-23-55-50.png',
+        'https://i.ibb.co/HD2G646g/Zombo-Droid-29062026110446.jpg',
+        'https://i.ibb.co/gbtFQd9J/Zombo-Droid-29062026110519.jpg',
+        'https://i.ibb.co/9mzH5RM9/Zombo-Droid-29062026110552.jpg',
+        'https://i.ibb.co/S1B7hqp/Zombo-Droid-29062026110647.jpg',
+        'https://i.ibb.co/6JFvbqg4/Zombo-Droid-29062026110748.jpg',
+        'https://i.ibb.co/RGCN5pFR/Zombo-Droid-29062026110819.jpg'
+      ]},
+      {id:90,title:'Bölüm 90',date:'2026-07-06',pages:[
+        'https://i.ibb.co/yBgGKQVc/Chat-GPT-mage-22-Haz-2026-23-55-50.png',
+        'https://i.ibb.co/sT424CL/Zombo-Droid-06072026111337.jpg',
+        'https://i.ibb.co/MkPjymy1/Zombo-Droid-06072026111519.jpg',
+        'https://i.ibb.co/PZfKhDFt/Zombo-Droid-06072026111602.jpg',
+        'https://i.ibb.co/XfTLn4t3/Zombo-Droid-06072026111648.jpg'
+      ]}
+    ]
+  },
+  {
+    id:'yumruk-kralinin-fethi',
+    title:'Yumruk Kralının Fethi',
+    cover:'https://i.ibb.co/TBndSpck/Chat-GPT-mage-24-Haz-2026-12-41-34.png',
+    author:'LOKİ',
+    genres:['Aksiyon','Dövüş Sanatları','Fantastik','Macera','Shounen'],
+    status:'Yetişildi',
+    prevUrl:'https://merlinscans.com/series/yumruk-kralnn-fethi',
+    views:10483,
+    monthlyViews:7124,
+    weeklyViews:1873,
+    dailyViews:291,
+    favorites:0,
+    updated:'2026-07-05',
+    description:'Dan Woosung, murimi yumrukları ile altüst eden bir adamdı ancak sonu şeytani tarikatın ellerinde oldu. Ancak bir anda kendisi Eunha Tüccar Birliği\'nin en büyük oğlunun vücudunda buldu. "İntikam veya borçlarımdan kurtulmak istemiyorum. Borçlar ödenmeli, intikamlar ise kapanmalıdır." Yeni vücudundan gelen zenginlik ve eski hayatından gelen dövüş sanatları ile Dan Woosung tekrardan yükselmeye başlıyor!!',
+    chapters:[
+      {id:48,title:'Bölüm 48',date:'2026-06-24',pages:[
+        'https://i.ibb.co/TBndSpck/Chat-GPT-mage-24-Haz-2026-12-41-34.png',
+        'https://i.ibb.co/V0ZhtxRS/Zombo-Droid-24062026124523.jpg',
+        'https://i.ibb.co/fdfkgNNh/Zombo-Droid-24062026124609.jpg',
+        'https://i.ibb.co/B51bLWDH/Zombo-Droid-24062026124745.jpg',
+        'https://i.ibb.co/3nt2hfC/Zombo-Droid-24062026124830.jpg'
+      ]},
+      {id:49,title:'Bölüm 49',date:'2026-06-24',pages:[
+        'https://i.ibb.co/TBndSpck/Chat-GPT-mage-24-Haz-2026-12-41-34.png',
+        'https://i.ibb.co/LhR05HK8/Zombo-Droid-24062026144836.jpg',
+        'https://i.ibb.co/2Yt8P8hc/Zombo-Droid-24062026145119.jpg',
+        'https://i.ibb.co/rKG2FzdJ/Zombo-Droid-24062026145143.jpg'
+      ]},
+      {id:50,title:'Bölüm 50',date:'2026-06-25',pages:[
+        'https://i.ibb.co/TBndSpck/Chat-GPT-mage-24-Haz-2026-12-41-34.png',
+        'https://i.ibb.co/NnG51jF2/Zombo-Droid-25062026153822.jpg',
+        'https://i.ibb.co/yFHHTSkL/Zombo-Droid-25062026154052.jpg',
+        'https://i.ibb.co/v6XFB1xy/Zombo-Droid-25062026154121.jpg',
+        'https://i.ibb.co/qLMqnXjM/Zombo-Droid-25062026154228.jpg'
+      ]},
+      {id:53,title:'Bölüm 53',date:'2026-06-27',pages:[
+        'https://i.ibb.co/TBndSpck/Chat-GPT-mage-24-Haz-2026-12-41-34.png',
+        'https://i.ibb.co/RpJRtvNr/003-4.jpg',
+        'https://i.ibb.co/ZRm9KzVZ/004-4.webp',
+        'https://i.ibb.co/zT58q3xx/005-4.jpg',
+        'https://i.ibb.co/SwH6NysV/006-4.jpg',
+        'https://i.ibb.co/1G6y5zsg/007-4.jpg',
+        'https://i.ibb.co/LXdjMDTV/008-4.webp',
+        'https://i.ibb.co/WWVTGNsS/Zombo-Droid-27062026120829.jpg',
+        'https://i.ibb.co/SXP9NzVq/Zombo-Droid-27062026120931.jpg',
+        'https://i.ibb.co/1Gt5fS33/Zombo-Droid-27062026120958.jpg'
+      ]},
+      {id:54,title:'Bölüm 54',date:'2026-06-27',pages:[
+        'https://i.ibb.co/TBndSpck/Chat-GPT-mage-24-Haz-2026-12-41-34.png',
+        'https://i.ibb.co/hR00c7cT/Zombo-Droid-27062026121645.jpg',
+        'https://i.ibb.co/WNMyWFjQ/Zombo-Droid-27062026121730.jpg',
+        'https://i.ibb.co/QvPLxBKd/Zombo-Droid-27062026121817.jpg',
+        'https://i.ibb.co/RpyfqVZz/Zombo-Droid-27062026121848.jpg'
+      ]},
+      {id:55,title:'Bölüm 55',date:'2026-06-27',pages:[
+        'https://i.ibb.co/TBndSpck/Chat-GPT-mage-24-Haz-2026-12-41-34.png',
+        'https://i.ibb.co/XkCNFpWB/Zombo-Droid-27062026122455.jpg',
+        'https://i.ibb.co/V02Tf2hL/009-6.jpg',
+        'https://i.ibb.co/FqVSTC4C/Zombo-Droid-27062026122830.jpg',
+        'https://i.ibb.co/5hk2vGhS/Zombo-Droid-27062026122556.jpg',
+        'https://i.ibb.co/YB0w9C9K/Zombo-Droid-27062026122620.jpg'
+      ]},
+      {id:56,title:'Bölüm 56',date:'2026-06-27',pages:[
+        'https://i.ibb.co/TBndSpck/Chat-GPT-mage-24-Haz-2026-12-41-34.png',
+        'https://i.ibb.co/60cNSXn2/Zombo-Droid-27062026125116.jpg',
+        'https://i.ibb.co/5xJgQcq1/Zombo-Droid-27062026125144.jpg',
+        'https://i.ibb.co/1fykPDbC/Zombo-Droid-27062026125217.jpg',
+        'https://i.ibb.co/r2fpmX0x/Zombo-Droid-27062026125241.jpg'
+      ]},
+      {id:57,title:'Bölüm 57',date:'2026-06-27',pages:[
+        'https://i.ibb.co/TBndSpck/Chat-GPT-mage-24-Haz-2026-12-41-34.png',
+        'https://i.ibb.co/Wvdbd8wQ/Zombo-Droid-27062026124623.jpg',
+        'https://i.ibb.co/cc0M8yCn/Zombo-Droid-27062026124835.jpg',
+        'https://i.ibb.co/Rk04fy7d/Zombo-Droid-27062026124903.jpg',
+        'https://i.ibb.co/k2dG9wzK/Zombo-Droid-27062026124927.jpg',
+        'https://i.ibb.co/N2zD3tqF/Zombo-Droid-27062026124948.jpg'
+      ]},
+      {id:58,title:'Bölüm 58',date:'2026-06-28',pages:[
+        'https://i.ibb.co/TBndSpck/Chat-GPT-mage-24-Haz-2026-12-41-34.png',
+        'https://i.ibb.co/QvmZthSF/Zombo-Droid-28062026184154.jpg',
+        'https://i.ibb.co/27VFMCCC/Zombo-Droid-28062026184229.jpg',
+        'https://i.ibb.co/VcFTGc0V/Zombo-Droid-28062026184315.jpg',
+        'https://i.ibb.co/HTRQJ1zf/Zombo-Droid-28062026184346.jpg'
+      ]},
+      {id:59,title:'Bölüm 59',date:'2026-07-05',pages:[
+        'https://i.ibb.co/TBndSpck/Chat-GPT-mage-24-Haz-2026-12-41-34.png',
+        'https://i.ibb.co/HLLdxK14/Zombo-Droid-05072026095322.jpg',
+        'https://i.ibb.co/rKmLjjJL/Zombo-Droid-05072026095400.jpg',
+        'https://i.ibb.co/5WBhsSHV/Zombo-Droid-05072026095435.jpg',
+        'https://i.ibb.co/YTqNBKZP/Zombo-Droid-05072026095524.jpg',
+        'https://i.ibb.co/qLDzgzJH/Zombo-Droid-05072026095611.jpg'
+      ]}
+    ]
+  },
+  {
+    id:'lordun-parasi-bitmiyor',
+    title:'Lord\'un Parası Bitmiyor',
+    cover:'https://i.ibb.co/1tY59R8q/fbddd183-892a-46b1-adcb-8c6a4be8bfeb.png',
+    author:'LOKİ',
+    genres:['Aksiyon','Büyü','Fantezi','Sistem'],
+    status:'Devam Ediyor',
+    prevUrl:'https://paradoxscans.com/seri/lordun-parasi-bitmiyor/',
+    views:3544,
+    monthlyViews:1992,
+    weeklyViews:638,
+    dailyViews:104,
+    favorites:0,
+    updated:'2026-06-25',
+    description:'Bir Suikastçının elinde sefil bir ölümle hayatını kaybeden Ern, geçmişe dönmüş ve gözündeki beceriyi kazanmıştı!!! Tüm geçmiş hatıralarıyla geçmişe dönen Ern… barışçıl boyutta bir fırtınanın başlangıcı olacak!!!',
+    chapters:[
+      {id:194,title:'Bölüm 194',date:'2026-06-25',pages:[
+        'https://i.ibb.co/1tY59R8q/fbddd183-892a-46b1-adcb-8c6a4be8bfeb.png',
+        'https://i.ibb.co/qP6Kqv4/Zombo-Droid-25062026110641.jpg',
+        'https://i.ibb.co/LXjZw6Yp/Zombo-Droid-25062026110848.jpg',
+        'https://i.ibb.co/F4vSkptP/Zombo-Droid-25062026110911.jpg'
+      ]},
+      {id:195,title:'Bölüm 195',date:'2026-06-25',pages:[
+        'https://i.ibb.co/1tY59R8q/fbddd183-892a-46b1-adcb-8c6a4be8bfeb.png',
+        'https://i.ibb.co/PGKPf8HW/Zombo-Droid-25062026153055.jpg',
+        'https://i.ibb.co/yndpSSQM/Zombo-Droid-25062026153122.jpg',
+        'https://i.ibb.co/QjnYydtC/Zombo-Droid-25062026153203.jpg'
+      ]},
+      {id:196,title:'Bölüm 196',date:'2026-06-27',pages:[
+        'https://i.ibb.co/1tY59R8q/fbddd183-892a-46b1-adcb-8c6a4be8bfeb.png',
+        'https://i.ibb.co/PGr8zXP1/Zombo-Droid-27062026130628.jpg',
+        'https://i.ibb.co/rKdmBFK6/Zombo-Droid-27062026130652.jpg',
+        'https://i.ibb.co/fGGgtwNC/Zombo-Droid-27062026130721.jpg'
+      ]},
+      {id:197,title:'Bölüm 197',date:'2026-06-27',pages:[
+        'https://i.ibb.co/1tY59R8q/fbddd183-892a-46b1-adcb-8c6a4be8bfeb.png',
+        'https://i.ibb.co/C4xLFtF/Zombo-Droid-27062026163507.jpg',
+        'https://i.ibb.co/1GJYBmW0/Zombo-Droid-27062026163531.jpg',
+        'https://i.ibb.co/SDBPQspm/Zombo-Droid-27062026163556.jpg'
+      ]}
+    ]
+  },
+  {
+    id:'sekil-degistiren-leydi-ve-cani-ailesi',
+    title:'Şekil Değiştiren Leydi ve Cani Ailesi',
+    cover:'https://i.ibb.co/RGH6BN7J/43945e11-ce47-49f2-8ff6-0c51fe3a2924.png',
+    author:'LOKİ',
+    genres:['Büyü','Drama','Manhwa','Tarih'],
+    status:'Yetişildi',
+    prevUrl:'https://ghostoon.com/manga/im-being-raised-by-villains/',
+    views:3968,
+    monthlyViews:2208,
+    weeklyViews:610,
+    dailyViews:98,
+    favorites:0,
+    updated:'2026-07-01',
+    description:"Gayrimeşru bir çocuk olduğumu düşünüyordum ama tamamen yabancı olduğum ortaya çıktı! Yan karakter olarak beden değiştirdikten bir yıl sonra kendimi, kovulmak üzereyken buldum. Evi terk edebilirim diye düşündüm. \"Aslında bu çocuk benim kızım, değil mi yavrum?\" Böyle düşünmüştüm ancak psikopat dükün dikkatini çektim! \"Biriyle oynadıktan sonra verdiği paranın bir ada almaya yetecek kadar fazla olduğunu duymuştum.\" Onunla para için anlaştım çünkü bu anlaşmayla köşeyi döneceğimi düşünüyordum. Birkaç ay sonra tomarla parayla birlikte buradan kaçacaktım. \"Sana git diyene kadar yanımda kalmasının.\" Ama beni oyuncak gibi gören babam, birden bana bağlandı. Babamın iknasıyla eve döndükten sonra aileler ve babam beni evlat edinebilmek için mücadele etti. Amcalarım ve teyzelerim beni korumak için toplandılar. Ayrıca geleceğin psikopatları bana garip saplantılar beslemeye başladı! Kertenkele şekil değiştiren Ayrin ve cani ailesinin ilginç hikayesi sizi bekliyor!<br><br>📌 NOT: Orijinal site güncel bölümlere yetişmiştir, bu nedenle çeviriye buradan devam etme ihtiyacı kalmamıştır. Serinin çevirisi burada sonlandırılmıştır, güncel bölümleri orijinal siteden takip edebilirsiniz.",
+    chapters:[
+      {id:147,title:'Bölüm 147',date:'2026-06-25',pages:[
+        'https://i.ibb.co/RGH6BN7J/43945e11-ce47-49f2-8ff6-0c51fe3a2924.png',
+        'https://i.ibb.co/rGnRvMBV/Zombo-Droid-25062026213022.jpg',
+        'https://i.ibb.co/Xr56RQx8/Zombo-Droid-25062026213057.jpg',
+        'https://i.ibb.co/dwz6N4Yf/Zombo-Droid-25062026213249.jpg',
+        'https://i.ibb.co/jvJQGgKL/Zombo-Droid-25062026213321.jpg'
+      ]},
+      {id:148,title:'Bölüm 148',date:'2026-06-25',pages:[
+        'https://i.ibb.co/RGH6BN7J/43945e11-ce47-49f2-8ff6-0c51fe3a2924.png',
+        'https://i.ibb.co/Kj7PGcND/Zombo-Droid-25062026221047.jpg',
+        'https://i.ibb.co/S7W8p9n4/Zombo-Droid-25062026221117.jpg',
+        'https://i.ibb.co/QFtfgGhw/Zombo-Droid-25062026221146.jpg',
+        'https://i.ibb.co/7tNk1Jrg/Zombo-Droid-25062026221211.jpg'
+      ]},
+      {id:149,title:'Bölüm 149',date:'2026-06-25',pages:[
+        'https://i.ibb.co/RGH6BN7J/43945e11-ce47-49f2-8ff6-0c51fe3a2924.png',
+        'https://i.ibb.co/ch9c3SFC/Zombo-Droid-25062026221542.jpg',
+        'https://i.ibb.co/V059Z32p/Zombo-Droid-25062026221613.jpg',
+        'https://i.ibb.co/pvNnT8Pd/Zombo-Droid-25062026221708.jpg'
+      ]},
+      {id:150,title:'Bölüm 150',date:'2026-07-01',pages:[
+        'https://i.ibb.co/RGH6BN7J/43945e11-ce47-49f2-8ff6-0c51fe3a2924.png',
+        'https://i.ibb.co/xSTnQm3j/Zombo-Droid-01072026112058.jpg',
+        'https://i.ibb.co/jvzdKCds/Zombo-Droid-01072026112132.jpg',
+        'https://i.ibb.co/VYRpRyfF/Zombo-Droid-01072026112215.jpg',
+        'https://i.ibb.co/8n73sH0K/Zombo-Droid-01072026112322.jpg'
+      ]}
+    ]
+  }
+  ,{
+    id:'essiz-dahi-siralamacisinin-donusu',
+    title:'Eşsiz Dâhi Sıralamacısının Dönüşü',
+    cover:'https://i.ibb.co/4ncq3SjK/Chat-GPT-mage-27-Haz-2026-00-55-56.png',
+    author:'LOKİ',
+    genres:['Aksiyon','Büyü','Doğa','Dövüş Sanatları'],
+    status:'Yetişildi',
+    prevUrl:'https://paradoxscans.com/seri/essiz-dahi-siralamacisinin-donusu/',
+    views:5622,
+    monthlyViews:3680,
+    weeklyViews:1036,
+    dailyViews:128,
+    favorites:0,
+    updated:'2026-07-02',
+    description:"Dünyayı kasıp kavuran bir sanal gerçeklik oyunu: God of Saver. Ve onun temellerini atan oyun: Deus Ex Machina: Ragnarok, kısaca Demrock olarak bilinir. Zirvesinde, tartışmasız bir numaralı isim olan Kaiser vardı. Bir zamanlar tanrı gibi saygı görüyordu...",
+    chapters:[
+      {id:26,title:'Bölüm 26',date:'2026-06-27',pages:[
+        'https://i.ibb.co/4ncq3SjK/Chat-GPT-mage-27-Haz-2026-00-55-56.png',
+        'https://i.ibb.co/JFn18K6d/MG-20260627-012923.jpg',
+        'https://i.ibb.co/RZNGJXL/Zombo-Droid-27062026012832.jpg',
+        'https://i.ibb.co/p62s0VbR/MG-20260627-013005.jpg'
+      ]},
+      {id:27,title:'Bölüm 27',date:'2026-06-27',pages:[
+        'https://i.ibb.co/4ncq3SjK/Chat-GPT-mage-27-Haz-2026-00-55-56.png',
+        'https://i.ibb.co/hFGgxXv1/Zombo-Droid-27062026013651.jpg',
+        'https://i.ibb.co/yFjy6M62/Zombo-Droid-27062026014154.jpg',
+        'https://i.ibb.co/67Vv5q7g/MG-20260627-014253.jpg'
+      ]},
+      {id:28,title:'Bölüm 28',date:'2026-06-27',pages:[
+        'https://i.ibb.co/4ncq3SjK/Chat-GPT-mage-27-Haz-2026-00-55-56.png',
+        'https://i.ibb.co/dwDTh8Nr/Zombo-Droid-27062026015010.jpg',
+        'https://i.ibb.co/XkffrvLk/Zombo-Droid-27062026015134.jpg',
+        'https://i.ibb.co/LdVXZwKQ/Zombo-Droid-27062026015205.jpg'
+      ]},
+      {id:29,title:'Bölüm 29',date:'2026-06-27',pages:[
+        'https://i.ibb.co/4ncq3SjK/Chat-GPT-mage-27-Haz-2026-00-55-56.png',
+        'https://i.ibb.co/3mX2wD7L/Zombo-Droid-27062026015926.jpg',
+        'https://i.ibb.co/Kx3dCyRt/Zombo-Droid-27062026015957.jpg',
+        'https://i.ibb.co/ycbBx1XK/Zombo-Droid-27062026020032.jpg'
+      ]},
+      {id:30,title:'Bölüm 30',date:'2026-06-27',pages:[
+        'https://i.ibb.co/4ncq3SjK/Chat-GPT-mage-27-Haz-2026-00-55-56.png',
+        'https://i.ibb.co/2Y0r65w0/Zombo-Droid-27062026020936.jpg',
+        'https://i.ibb.co/hQxppPB/Zombo-Droid-27062026021015.jpg',
+        'https://i.ibb.co/SYBZbVv/Zombo-Droid-27062026021123.jpg',
+        'https://i.ibb.co/0Rbs3SDF/MG-20260627-020444-1.jpg'
+      ]},
+      {id:31,title:'Bölüm 31',date:'2026-07-02',pages:[
+        'https://i.ibb.co/4ncq3SjK/Chat-GPT-mage-27-Haz-2026-00-55-56.png',
+        'https://i.ibb.co/C307VLKy/Zombo-Droid-02072026124910.jpg',
+        'https://i.ibb.co/LhYj0nyK/Zombo-Droid-02072026125005.jpg',
+        'https://i.ibb.co/nsgGmNpZ/Zombo-Droid-02072026125038.jpg'
+      ]}
+    ]
+  },
+  {
+    id:'yeralti-dunyasinin-efendisi',
+    title:'Yeraltı Dünyasının Efendisi',
+    cover:'https://i.ibb.co/Nn6sdc24/b30835a7-913a-46dc-8e8c-cff480547777.png',
+    author:'LOKİ',
+    genres:['Dram','Fantezi','Aksiyon','Seinen'],
+    status:'Devam Ediyor',
+    views:4460,
+    monthlyViews:2498,
+    weeklyViews:604,
+    dailyViews:108,
+    updated:'2026-07-06',
+    description:'Bir gün, KangWoo aniden Cehennem\'e düştü. Elinde yalnızca hayatta kalma arzusu ve Yutma Yetkisi vardı. 1. Katmandan 9. Katmana kadar, yüz binlerce iblisi yuttu ve sonunda Yedi Büyük Dük bile önünde diz çöktü.\n\n"Neden geri dönmek istiyorsunuz? Artık Cehennem\'deki her şeye sahipsiniz, efendimiz."\n\n"Benim neyim var ki?"\n\nNe yiyecek bir şey vardı, ne de eğlence! Sadece ıssız topraklar ve korkunç iblisler...\n\n"Geri dönüyorum."\n\nOn bin yıl boyunca Dokuz Cehennem\'de kaldıktan sonra, nihayet Dünya\'ya geri dönüyor!',
+    prevUrl:'https://uzaymanga.com/manga/yeralti-dunyasinin-efendisi',
+    chapters:[
+      {id:138,title:'Bölüm 138',date:'2026-07-05',pages:[
+        'https://i.ibb.co/Nn6sdc24/b30835a7-913a-46dc-8e8c-cff480547777.png',
+        'https://i.ibb.co/M5JLdRds/Zombo-Droid-05072026122819.jpg',
+        'https://i.ibb.co/RpRVytpx/Zombo-Droid-05072026122859.jpg',
+        'https://i.ibb.co/dwZW5LvM/Zombo-Droid-05072026122928.jpg',
+        'https://i.ibb.co/bMmXDqLS/Zombo-Droid-05072026122955.jpg'
+      ]},
+      {id:139,title:'Bölüm 139',date:'2026-07-05',pages:[
+        'https://i.ibb.co/Nn6sdc24/b30835a7-913a-46dc-8e8c-cff480547777.png',
+        'https://i.ibb.co/PZ7JtGrh/Zombo-Droid-05072026123414.jpg',
+        'https://i.ibb.co/d0H7fRwg/Zombo-Droid-05072026123446.jpg',
+        'https://i.ibb.co/Gvs9N8GB/Zombo-Droid-05072026123517.jpg',
+        'https://i.ibb.co/tTXTD3Rb/Zombo-Droid-05072026123553.jpg'
+      ]},
+      {id:140,title:'Bölüm 140',date:'2026-07-05',pages:[
+        'https://i.ibb.co/Nn6sdc24/b30835a7-913a-46dc-8e8c-cff480547777.png',
+        'https://i.ibb.co/S47tMdnc/Zombo-Droid-05072026123935.jpg',
+        'https://i.ibb.co/BV9QMCDB/Zombo-Droid-05072026124015.jpg',
+        'https://i.ibb.co/Gvp3Jc6n/Zombo-Droid-05072026124047.jpg'
+      ]},
+      {id:141,title:'Bölüm 141',date:'2026-07-06',pages:[
+        'https://i.ibb.co/Nn6sdc24/b30835a7-913a-46dc-8e8c-cff480547777.png',
+        'https://i.ibb.co/B5NsxLXv/Zombo-Droid-06072026121221.jpg',
+        'https://i.ibb.co/67JgQVV6/Zombo-Droid-06072026121250.jpg',
+        'https://i.ibb.co/23c4BztG/Zombo-Droid-06072026121318.jpg',
+        'https://i.ibb.co/rGjWskdD/Zombo-Droid-06072026121351.jpg'
+      ]},
+      {id:142,title:'Bölüm 142',date:'2026-07-06',pages:[
+        'https://i.ibb.co/Nn6sdc24/b30835a7-913a-46dc-8e8c-cff480547777.png',
+        'https://i.ibb.co/ZRM0SxwR/Zombo-Droid-06072026121617.jpg',
+        'https://i.ibb.co/HDKccnFQ/Zombo-Droid-06072026121735.jpg',
+        'https://i.ibb.co/PvxGFPM3/Zombo-Droid-06072026121808.jpg',
+        'https://i.ibb.co/Pzc27v6Z/Zombo-Droid-06072026121938.jpg'
+      ]}
+    ]
+  },
+  {
+    id:'felaket-buyucusu',
+    title:'Felaket Büyücüsü',
+    altTitles:['Disastrous Necromancer', 'Felaket Büyücüsü!'],
+    cover:'https://i.ibb.co/fVxByDTt/56f23462-8927-49fe-8573-30f120270143.png',
+    author:'LOKİ',
+    genres:['Aksiyon','Büyü','Dövüş Sanatları','Romantizm','Sistem'],
+    status:'Devam Ediyor',
+    prevUrl:'https://paradoxscans.com/seri/felaket-buyucusu/bolum/page/1/#chapter-list',
+    views:9770,
+    monthlyViews:5438,
+    weeklyViews:1349,
+    dailyViews:213,
+    favorites:0,
+    updated:'2026-07-07',
+    description:'Disastrous Necromancer — Oyun gerçeğe dönüşüyor, dünyanın kuralları altüst oluyor ve insanoğlu herkes için meslek değiştirme çağına giriyor. Sadece bir meslek Değiştirici olarak! Ve güçlenerek! Dünyanın tepesinde durabilir! Lin Moyu meslek değiştirdiği gün, tek gizli meslek olan Ölü Çağıran oldu. O andan itibaren, çağrıları asla ölmeyeceği için Lin Moyu da asla ölmeyecekti. "Kemiklerden yapılmış bir tahtta yükseklerde oturuyor, yaşam ve ölüm arasındaki yolda ilerliyorum." "Ben Felaket\'im!"',
+    chapters:[
+      {id:262,title:'Bölüm 262',date:'2026-07-07',pages:[
+        'https://i.ibb.co/fVxByDTt/56f23462-8927-49fe-8573-30f120270143.png',
+        'https://i.ibb.co/pvkTSs9g/Zombo-Droid-07072026113802.jpg',
+        'https://i.ibb.co/5h82QqdY/Zombo-Droid-07072026113832.jpg'
+      ]},
+      {id:263,title:'Bölüm 263',date:'2026-07-07',pages:[
+        'https://i.ibb.co/fVxByDTt/56f23462-8927-49fe-8573-30f120270143.png',
+        'https://i.ibb.co/Z60h1jdj/Zombo-Droid-07072026114142.jpg',
+        'https://i.ibb.co/zhcL3ZHZ/Zombo-Droid-07072026114249.jpg'
+      ]},
+      {id:264,title:'Bölüm 264',date:'2026-07-07',pages:[
+        'https://i.ibb.co/fVxByDTt/56f23462-8927-49fe-8573-30f120270143.png',
+        'https://i.ibb.co/SXRh5mgg/Zombo-Droid-07072026114523.jpg',
+        'https://i.ibb.co/5XBnQ4Q9/Zombo-Droid-07072026114620.jpg'
+      ]},
+      {id:265,title:'Bölüm 265',date:'2026-07-07',pages:[
+        'https://i.ibb.co/fVxByDTt/56f23462-8927-49fe-8573-30f120270143.png',
+        'https://i.ibb.co/7JRP8zRF/Zombo-Droid-07072026143424.jpg',
+        'https://i.ibb.co/twsCRRLQ/Zombo-Droid-07072026143501.jpg'
+      ]},
+      {id:266,title:'Bölüm 266',date:'2026-07-07',pages:[
+        'https://i.ibb.co/fVxByDTt/56f23462-8927-49fe-8573-30f120270143.png',
+        'https://i.ibb.co/1g3T4nT/Zombo-Droid-07072026143616.jpg',
+        'https://i.ibb.co/PZtGLZxP/Zombo-Droid-07072026143648.jpg'
+      ]},
+      {id:267,title:'Bölüm 267',date:'2026-07-07',pages:[
+        'https://i.ibb.co/fVxByDTt/56f23462-8927-49fe-8573-30f120270143.png',
+        'https://i.ibb.co/VW7CXnyn/Zombo-Droid-07072026143858.jpg',
+        'https://i.ibb.co/TDmkC08r/Zombo-Droid-07072026143929.jpg'
+      ]},
+      {id:268,title:'Bölüm 268',date:'2026-07-07',pages:[
+        'https://i.ibb.co/fVxByDTt/56f23462-8927-49fe-8573-30f120270143.png',
+        'https://i.ibb.co/XkLxF7XR/Zombo-Droid-07072026144055.jpg',
+        'https://i.ibb.co/WWnCGMLD/Zombo-Droid-07072026144130.jpg'
+      ]},
+      {id:269,title:'Bölüm 269',date:'2026-07-07',pages:[
+        'https://i.ibb.co/fVxByDTt/56f23462-8927-49fe-8573-30f120270143.png',
+        'https://i.ibb.co/0pzfc21v/Zombo-Droid-07072026144312.jpg',
+        'https://i.ibb.co/rDSysFs/Zombo-Droid-07072026144346.jpg'
+      ]},
+      {id:270,title:'Bölüm 270',date:'2026-07-07',pages:[
+        'https://i.ibb.co/fVxByDTt/56f23462-8927-49fe-8573-30f120270143.png',
+        'https://i.ibb.co/HpL91pcy/Zombo-Droid-07072026144535.jpg',
+        'https://i.ibb.co/823TzxT/Zombo-Droid-07072026144601.jpg'
+      ]},
+      {id:271,title:'Bölüm 271',date:'2026-07-07',pages:[
+        'https://i.ibb.co/fVxByDTt/56f23462-8927-49fe-8573-30f120270143.png',
+        'https://i.ibb.co/FCmVkqp/Zombo-Droid-07072026144821.jpg',
+        'https://i.ibb.co/gML4dG8v/Zombo-Droid-07072026144847.jpg'
+      ]}
+    ]
+  }
+];
+
+// ══ STATE ══
+let currentPage = 'home';
+let currentMangaId = null;
+let currentChapterId = null;
+let listActiveGenre = 'Tümü';
+let homeActiveGenre = 'Tümü';
+
+// ══ UTILS ══
+function isNew(d){return(new Date()-new Date(d))<86400000;}
+function formatDate(d){const now=new Date();const parts=d.split('-');const date=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));const diff=Math.floor((now-date)/86400000);if(diff<1)return'';if(diff===1)return'Dün';if(diff<7)return diff+' gün önce';if(diff<30)return Math.floor(diff/7)+' hafta önce';if(diff<365)return Math.floor(diff/30)+' ay önce';return Math.floor(diff/365)+' yıl önce';}
+function formatNum(n){return n>=1000?(n/1000).toFixed(1)+'K':n;}
+function getBookmarks(){return JSON.parse(localStorage.getItem('pdx_bm')||'[]');}
+function toggleBookmark(id){let bm=getBookmarks();if(bm.includes(id)){bm=bm.filter(x=>x!==id);showToast('Kaydedilenlerden çıkarıldı');}else{bm.push(id);showToast('Kaydedildi! ❤️');}localStorage.setItem('pdx_bm',JSON.stringify(bm));return bm.includes(id);}
+function isBookmarked(id){return getBookmarks().includes(id);}
+function getRead(mid){return JSON.parse(localStorage.getItem('pdx_r_'+mid)||'[]');}
+function markRead(mid,cid){let r=getRead(mid);if(!r.includes(cid))r.push(cid);localStorage.setItem('pdx_r_'+mid,JSON.stringify(r));}
+function isRead(mid,cid){return getRead(mid).includes(cid);}
+let _tt;
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2000);}
+
+// ══ PAGE ROUTER (her sayfa/seri/bölüm için benzersiz URL) ══
+function buildUrl(page, mangaId, chapterId){
+  const params=new URLSearchParams();
+  if(page==='list') params.set('sayfa','seriler');
+  else if(page==='bookmarks') params.set('sayfa','kaydedilenler');
+  else if(page==='about') params.set('sayfa','hakkimda');
+  else if(page==='original-sites') params.set('sayfa','orijinal-siteler');
+  else if(page==='faq') params.set('sayfa','merak-edilenler');
+  else if(page==='manga'&&mangaId) params.set('seri', mangaId);
+  else if(page==='reader'&&mangaId&&chapterId){params.set('seri', mangaId);params.set('bolum', chapterId);}
+  const qs=params.toString();
+  return location.pathname+(qs?('?'+qs):'');
+}
+
+function setLdJson(data){
+  let tag=document.getElementById('ld-json');
+  if(data){
+    if(!tag){tag=document.createElement('script');tag.type='application/ld+json';tag.id='ld-json';document.head.appendChild(tag);}
+    tag.textContent=JSON.stringify(data);
+  } else if(tag){
+    tag.remove();
+  }
+}
+
+function updateMeta(page, mangaId, chapterId){
+  let title='LOKİ SCANS - Türkçe Manhwa Oku';
+  let desc='LOKİ SCANS - En güncel Türkçe manhwa çevirileri burada!';
+  let robots='index, follow';
+  let ld=null;
+
+  if(page==='list'){
+    title='Tüm Seriler - LOKİ SCANS';
+    desc="LOKİ SCANS'taki tüm manhwa serilerini keşfet, en güncel bölümleri Türkçe oku.";
+  } else if(page==='manga'&&mangaId){
+    const m=MANGA_DATA.find(x=>x.id===mangaId);
+    if(m){
+      title=m.title+' Türkçe Oku - LOKİ SCANS';
+      desc=(m.description||'').slice(0,160);
+      ld={"@context":"https://schema.org","@type":"Book","name":m.title,"description":(m.description||'').slice(0,300),"image":m.cover,"genre":m.genres,"url":location.origin+buildUrl(page,mangaId,chapterId)};
+    }
+  } else if(page==='reader'&&mangaId&&chapterId){
+    const m=MANGA_DATA.find(x=>x.id===mangaId);
+    const ch=m&&m.chapters.find(c=>c.id===chapterId);
+    if(m&&ch){
+      title=m.title+' '+ch.title+' - LOKİ SCANS';
+      desc=m.title+' '+ch.title+" Türkçe oku. "+(m.description||'').slice(0,100);
+    }
+  } else if(page==='bookmarks'){
+    title='Kaydedilenler - LOKİ SCANS';
+    robots='noindex, follow';
+  }
+
+  document.getElementById('page-title').textContent=title;
+  const metaDesc=document.getElementById('meta-desc');
+  if(metaDesc) metaDesc.setAttribute('content', desc);
+
+  let metaRobots=document.getElementById('meta-robots');
+  if(!metaRobots){metaRobots=document.createElement('meta');metaRobots.id='meta-robots';metaRobots.name='robots';document.head.appendChild(metaRobots);}
+  metaRobots.setAttribute('content', robots);
+
+  const canonical=document.getElementById('canonical-link');
+  if(canonical) canonical.setAttribute('href', location.origin+buildUrl(page,mangaId,chapterId));
+
+  setLdJson(ld);
+}
+
+function renderPage(page, mangaId, chapterId){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
+  currentPage = page;
+  document.getElementById('page-'+page).classList.add('active');
+  if(document.getElementById('nav-'+page)) document.getElementById('nav-'+page).classList.add('active');
+  window.scrollTo(0,0);
+  // Autoscroll bar: sadece reader sayfasında göster
+  var asBar=document.getElementById('autoscroll-bar');
+  if(asBar){
+    if(page==='reader'){asBar.style.display='flex';}
+    else{
+      asBar.style.display='none';
+      // Okuyucudan çıkınca otomatik kaydırmayı durdur
+      if(typeof _autoScrollActive!=='undefined'&&_autoScrollActive){
+        _autoScrollActive=false;
+        cancelAnimationFrame(_autoScrollTimer);
+        asBar.classList.remove('active');
+      }
+    }
+  }
+  if(page==='home') renderHome();
+  if(page==='list') renderList();
+  if(page==='manga'&&mangaId) renderMangaDetail(mangaId);
+  if(page==='reader'&&mangaId&&chapterId) openReader(mangaId, chapterId);
+  if(page==='bookmarks') renderBookmarks();
+  updateMeta(page, mangaId, chapterId);
+}
+
+function showPage(page, mangaId, chapterId){
+  renderPage(page, mangaId, chapterId);
+  const url=buildUrl(page, mangaId, chapterId);
+  try{ history.pushState({page,mangaId,chapterId}, '', url); }catch(e){}
+}
+
+window.addEventListener('popstate', function(e){
+  if(e.state) renderPage(e.state.page, e.state.mangaId, e.state.chapterId);
+  else routeFromUrl();
+});
+
+function routeFromUrl(){
+  const params=new URLSearchParams(location.search);
+  const seri=params.get('seri');
+  const bolumRaw=params.get('bolum');
+  const bolum=bolumRaw?parseInt(bolumRaw):null;
+  const sayfa=params.get('sayfa');
+  let page='home',mangaId=null,chapterId=null;
+  if(seri&&bolum){page='reader';mangaId=seri;chapterId=bolum;}
+  else if(seri){page='manga';mangaId=seri;}
+  else if(sayfa==='seriler'){page='list';}
+  else if(sayfa==='kaydedilenler'){page='bookmarks';}
+  else if(sayfa==='hakkimda'){page='about';}
+  else if(sayfa==='orijinal-siteler'){page='original-sites';}
+  else if(sayfa==='merak-edilenler'){page='faq';}
+  renderPage(page, mangaId, chapterId);
+  try{ history.replaceState({page,mangaId,chapterId}, '', buildUrl(page,mangaId,chapterId)); }catch(e){}
+}
+
+function goBackFromReader(){showPage('manga', currentMangaId);}
+
+window.toggleSiteMenu=function(){
+  const ov=document.getElementById('site-menu-overlay');
+  if(!ov)return;
+  ov.classList.toggle('open');
+};
+
+// ══ CARD ══
+function renderCard(manga, showBadge=false){
+  const latest=manga.chapters[manga.chapters.length-1];
+  const saved=isBookmarked(manga.id);
+  const done=manga.status==='Tamamlandı';
+  const caught=manga.status==='Yetişildi';
+  const seasonEnd=manga.status==='Sezon Finali';
+  const badgeClass=done?'completed':caught?'caught':seasonEnd?'seasonend':'';
+  const badgeText=done?'COMPLETED':caught?'CAUGHT UP':seasonEnd?'SEASON FINALE':'ONGOING';
+  return`<a class="manga-card" href="/?seri=${manga.id}" onclick="event.preventDefault();showPage('manga','${manga.id}')">
+    <div class="cover-wrap">
+      <img src="${manga.cover}" alt="${manga.title}" loading="lazy">
+      ${showBadge?`<div class="status-badge ${badgeClass}"><span>${badgeText}</span></div>`:''}
+      <button class="bookmark-btn ${saved?'saved':''}" onclick="event.stopPropagation();handleBmCard(this,'${manga.id}')">♥</button>
+    </div>
+    <div class="card-info">
+      <div class="card-title">${manga.title}</div>
+      <div class="card-chapter">${latest?'Bl. '+latest.id:''}${latest&&isNew(latest.date)?' <span class="new-badge">YENİ</span>':''}</div>
+      <div class="card-date">${latest?formatDate(latest.date):''}</div>
+    </div>
+  </a>`;
+}
+
+function renderSeriesCardBig(manga, showBadge=false){
+  const sortedChapters=[...manga.chapters].sort((a,b)=>b.id-a.id).slice(0,5);
+  const done=manga.status==='Tamamlandı';
+  const caught=manga.status==='Yetişildi';
+  const seasonEnd=manga.status==='Sezon Finali';
+  const badgeClass=done?'completed':caught?'caught':seasonEnd?'seasonend':'';
+  const badgeText=done?'COMPLETED':caught?'CAUGHT UP':seasonEnd?'SEASON FINALE':'ONGOING';
+  return`<div class="series-card-big">
+    <a href="/?seri=${manga.id}" onclick="event.preventDefault();showPage('manga','${manga.id}')">
+      <div class="cover-wrap" style="position:relative">
+        <img src="${manga.cover}" alt="${manga.title}" loading="lazy">
+        ${showBadge?`<div class="status-badge ${badgeClass}"><span>${badgeText}</span></div>`:''}
+      </div>
+      <div class="series-title-big">${manga.title}</div>
+    </a>
+    ${sortedChapters.map(ch=>`<a class="series-chapter-row" href="/?seri=${manga.id}&bolum=${ch.id}" onclick="event.preventDefault();showPage('reader','${manga.id}',${ch.id})">
+      <div class="ch-title">${ch.title}${isNew(ch.date)?' <span class="ch-new-badge">YENİ</span>':''}</div>
+      <div class="ch-date">${formatDate(ch.date)}</div>
+    </a>`).join('')}
+  </div>`;
+}
+
+
+
+// ══ HOME ══
+let _homePage=0;
+let _carouselTimer;
+function carouselMove(dir){
+  const track=document.getElementById('carousel-track');
+  if(!track)return;
+  const card=track.querySelector('.top-carousel-slide');
+  if(!card)return;
+  const w=card.offsetWidth+16;
+  track.scrollBy({left:dir*w,behavior:'smooth'});
+  clearInterval(_carouselTimer);
+  _carouselTimer=setInterval(()=>carouselMove(1),4000);
+}
+let _carouselIndex=0;
+
+function lastChapterDate(m){
+  if(!m.chapters||!m.chapters.length) return new Date(m.updated||0);
+  const dates=m.chapters.map(c=>new Date(c.date||0));
+  return new Date(Math.max(...dates));
+}
+
+function renderHome(){
+  // TOP CAROUSEL: yatay kaydırmalı, swipe/drag destekli
+  const carouselData=[...MANGA_DATA].sort((a,b)=>lastChapterDate(b)-lastChapterDate(a)).slice(0,8);
+  const carousel=document.getElementById('top-carousel');
+  carousel.innerHTML=`<div class="top-carousel-track" id="carousel-track">
+    ${carouselData.map(m=>`<a class="top-carousel-slide" href="/?seri=${m.id}" onclick="event.preventDefault();showPage('manga','${m.id}')">
+      <img src="${m.cover}" alt="${m.title}" loading="lazy">
+      <div class="tc-title">${m.title}<div class="tc-genres">${m.genres.slice(0,3).map(g=>'#'+g).join(' ')}</div></div>
+    </a>`).join('')}
+  </div>`;
+  // Drag/swipe desteği
+  const track=document.getElementById('carousel-track');
+  let isDown=false,startX=0,scrollLeft=0;
+  track.addEventListener('mousedown',e=>{isDown=true;track.classList.add('dragging');startX=e.pageX-track.offsetLeft;scrollLeft=track.scrollLeft;});
+  track.addEventListener('mouseleave',()=>{isDown=false;track.classList.remove('dragging');});
+  track.addEventListener('mouseup',()=>{isDown=false;track.classList.remove('dragging');});
+  track.addEventListener('mousemove',e=>{if(!isDown)return;e.preventDefault();const x=e.pageX-track.offsetLeft;track.scrollLeft=scrollLeft-(x-startX)*1.5;});
+  // Otomatik kaydırma
+  clearInterval(_carouselTimer);
+  _carouselTimer=setInterval(()=>carouselMove(1),4000);
+
+  // SON YÜKLENENLER - 2 sütun, 5 satır (10 seri), sayfalama
+  const sorted=[...MANGA_DATA].sort((a,b)=>lastChapterDate(b)-lastChapterDate(a));
+  const perPage=10;
+  const totalPages=Math.ceil(sorted.length/perPage);
+  if(_homePage>=totalPages) _homePage=totalPages-1;
+  const pageItems=sorted.slice(_homePage*perPage, _homePage*perPage+perPage);
+
+  document.getElementById('series-big-grid').innerHTML=pageItems.map(m=>renderSeriesCardBig(m,true)).join('');
+
+  // Sayfalama butonları
+  const paginEl=document.getElementById('home-pagination');
+  if(paginEl){
+    let btns='';
+    for(let i=0;i<totalPages;i++){
+      btns+=`<button class="home-page-btn${i===_homePage?' active':''}" onclick="_homePage=${i};renderHome()">${i+1}</button>`;
+    }
+    paginEl.innerHTML=`
+      <button class="home-page-btn" onclick="if(_homePage>0){_homePage--;renderHome()}" ${_homePage===0?'disabled':''}>‹</button>
+      ${btns}
+      <button class="home-page-btn" onclick="if(_homePage<${totalPages-1}){_homePage++;renderHome()}" ${_homePage===totalPages-1?'disabled':''}>›</button>
+    `;
+  }
+
+  renderLeaderboard();
+}
+
+function setHomeGenre(g,el){homeActiveGenre=g;document.querySelectorAll('#featured-genre-tabs .featured-tab').forEach(p=>p.classList.remove('active'));el.classList.add('active');renderHome();}
+
+// ══ LEADERBOARD (Gün / Hafta / Ay / Tüm Zamanlar) ══
+let leaderboardPeriod='gun';
+function renderLeaderboard(){
+  const periods=[{key:'gun',label:'Gün'},{key:'hafta',label:'Hafta'},{key:'ay',label:'Ay'},{key:'tum',label:'Tüm Zamanlar'}];
+  document.getElementById('leaderboard-tabs').innerHTML=periods.map(p=>`<div class="leaderboard-tab ${p.key===leaderboardPeriod?'active':''}" onclick="setLeaderboardPeriod('${p.key}')">${p.label}</div>`).join('');
+
+  // Periyoda gore farkli views alani kullan
+  const viewsKey={gun:'dailyViews',hafta:'weeklyViews',ay:'monthlyViews',tum:'views'}[leaderboardPeriod];
+  // Tamamlanmış seriler günlük ve haftalık sıralamada yer almaz
+  const excludeCompleted=leaderboardPeriod==='gun'||leaderboardPeriod==='hafta';
+  const pool=[...MANGA_DATA].filter(m=>!excludeCompleted||m.status!=='Tamamlandı');
+
+  let ranked;
+  if(leaderboardPeriod==='gun'){
+    // En son güncellenen (bölüm yüklenen) 5 seri alınır
+    const latest5=[...pool].sort((a,b)=>{
+      const da=a.chapters.reduce((mx,c)=>c.date>mx?c.date:mx,'');
+      const db=b.chapters.reduce((mx,c)=>c.date>mx?c.date:mx,'');
+      return db.localeCompare(da);
+    }).slice(0,5);
+    // Bu 5 seri kendi aralarında günlük görüntülenmeye göre sıralanır
+    ranked=latest5.sort((a,b)=>(b.dailyViews||0)-(a.dailyViews||0));
+  } else {
+    ranked=pool.sort((a,b)=>(b[viewsKey]||0)-(a[viewsKey]||0)).slice(0,5);
+  }
+
+  document.getElementById('leaderboard-list').innerHTML=ranked.map((m,i)=>{
+    const v=m[viewsKey]||0;
+    return`<a class="leaderboard-item" href="/?seri=${m.id}" onclick="event.preventDefault();showPage('manga','${m.id}')">
+      <div class="leaderboard-rank">${String(i+1).padStart(2,'0')}</div>
+      <img src="${m.cover}" alt="${m.title}" loading="lazy">
+      <div class="leaderboard-info">
+        <div class="lb-title">${m.title}</div>
+        <div class="lb-views">👁 ${formatNum(v)}</div>
+      </div>
+    </a>`;
+  }).join('');
+}
+function setLeaderboardPeriod(p){leaderboardPeriod=p;renderLeaderboard();}
+
+// ══ LIST ══
+function renderList(){
+  const sort=document.getElementById('filter-sort')?.value||'updated';
+  const status=document.getElementById('filter-status')?.value||'all';
+  const allGenres=['Tümü',...new Set(MANGA_DATA.flatMap(m=>m.genres))];
+  document.getElementById('list-genre-filter').innerHTML=allGenres.map(g=>`<div class="genre-pill ${g===listActiveGenre?'active':''}" onclick="setListGenre('${g}',this)">${g}</div>`).join('');
+  let data=[...MANGA_DATA];
+  if(listActiveGenre!=='Tümü') data=data.filter(m=>m.genres.includes(listActiveGenre));
+  if(status==='ongoing') data=data.filter(m=>m.status==='Devam Ediyor');
+  if(status==='completed') data=data.filter(m=>m.status==='Tamamlandı');
+  if(status==='caught') data=data.filter(m=>m.status==='Yetişildi');
+  if(status==='seasonend') data=data.filter(m=>m.status==='Sezon Finali');
+  if(sort==='updated') data.sort((a,b)=>new Date(b.chapters[b.chapters.length-1]?.date||0)-new Date(a.chapters[a.chapters.length-1]?.date||0));
+  if(sort==='popular') data.sort((a,b)=>b.views-a.views);
+  if(sort==='az') data.sort((a,b)=>a.title.localeCompare(b.title,'tr'));
+  document.getElementById('list-count').textContent=data.length+' seri';
+  document.getElementById('list-grid').innerHTML=data.length?data.map(m=>renderCard(m,true)).join(''):'<div class="empty-state" style="grid-column:1/-1"><div class="icon">🔍</div><p>Seri bulunamadı.</p></div>';
+}
+
+function setListGenre(g,el){listActiveGenre=g;document.querySelectorAll('#list-genre-filter .genre-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');renderList();}
+
+// ══ MANGA DETAIL ══
+function renderMangaDetail(id){
+  currentMangaId=id;
+  const manga=MANGA_DATA.find(m=>m.id===id);
+  if(!manga){document.getElementById('manga-detail-content').innerHTML='<div class="empty-state"><div class="icon">😔</div><p>Manga bulunamadı.</p></div>';return;}
+  const saved=isBookmarked(id);
+  const done=manga.status==='Tamamlandı';
+  const firstUnread=manga.chapters.find(c=>!isRead(id,c.id));
+  document.getElementById('manga-detail-content').innerHTML=`
+    <button class="back-btn" onclick="showPage('home')">← Geri</button>
+    <div class="manga-detail-top">
+      <div class="manga-detail-cover"><img src="${manga.cover}" alt="${manga.title}"></div>
+      <div class="manga-detail-info">
+        ${manga.isOriginal?`<div class="original-badge">👑 Bu seri yalnızca Loki Scans'ta</div>`:''}
+        <div class="manga-detail-title">${manga.title}</div>
+        <div class="manga-detail-meta">✍️ <strong>${manga.author}</strong></div>
+        ${manga.altTitles&&manga.altTitles.length?`<div class="manga-detail-meta" style="font-size:12px;color:var(--muted)">🔤 <em>${manga.altTitles.join(' / ')}</em></div>`:''}
+        <div class="manga-detail-meta"><span class="stat-chip">👁 ${formatNum(manga.views)}</span> <span class="stat-chip">♥ ${formatNum(manga.favorites)}</span></div>
+        <div class="manga-detail-meta">Durum: <strong style="color:${done?'var(--success)':manga.status==='Yetişildi'?'#3a86ff':'var(--accent)'}">${manga.status}</strong></div>
+        <div class="genre-list">${manga.genres.map(g=>`<span class="genre-tag-lg">${g}</span>`).join('')}</div>
+        <div class="manga-detail-actions">
+          <button class="btn-primary" onclick="showPage('reader','${id}',${firstUnread?firstUnread.id:manga.chapters[0].id})">▶ ${firstUnread&&firstUnread.id!==manga.chapters[0].id?'Bl. '+firstUnread.id+"'den Devam":'Okumaya Başla'}</button>
+          <button class="btn-outline ${saved?'saved':''}" id="detail-bm" onclick="handleDetailBm('${id}')">
+            ${saved?'♥ Kaydedildi':'♡ Kaydet'}
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="manga-desc">${manga.description}</div>
+    <div class="section-title" style="margin-bottom:12px"><h2>📖 Bölümler</h2><div class="line"></div><span style="font-size:12px;color:var(--muted)">${manga.chapters.length} bölüm</span></div>
+    <div class="chapter-list">
+      ${[...manga.chapters].reverse().map(ch=>{
+        const read=isRead(id,ch.id);
+        return`<a class="chapter-item ${read?'read':''}" href="/?seri=${id}&bolum=${ch.id}" onclick="event.preventDefault();showPage('reader','${id}',${ch.id})">
+          <div class="chapter-item-left"><div class="chapter-item-title">${ch.title}${isNew(ch.date)?' <span class="ch-new-badge">YENİ</span>':''}</div><div class="chapter-item-date">${formatDate(ch.date)}</div></div>
+          <div class="chapter-item-right">${read?'<span class="read-badge">✓ Okundu</span>':''}<span style="color:var(--muted);font-size:16px">›</span></div>
+        </a>`;
+      }).join('')}
+    </div>
+    ${manga.prevUrl?`<div class="prev-chapters-box">
+      <div class="prev-chapters-icon">📚</div>
+      <div class="prev-chapters-text">
+        <div class="prev-chapters-title">Önceki Bölümler</div>
+        <div class="prev-chapters-desc">1 - ${manga.chapters[0].id-1}. bölümleri orijinal çeviri sitesinde okuyabilirsin.</div>
+      </div>
+      <a class="prev-chapters-btn" href="${manga.prevUrl}" target="_blank" rel="noopener">Git →</a>
+    </div>`:''}
+    <div class="comments-section">
+      <div class="section-title" style="margin-bottom:14px"><h2>💬 Yorumlar</h2><div class="line"></div></div>
+      <div class="reactions-heading">Ne düşünüyorsun?</div>
+      <div class="reactions-row" id="reactions-manga-${id}"></div>
+      <div class="comment-input-row">
+        <textarea class="comment-textarea" id="comment-input-manga-${id}" placeholder="Bu seri hakkında yorum yap..."></textarea>
+        <button class="comment-submit-btn" onclick="submitComment('manga-${id}')">Gönder</button>
+      </div>
+      <div id="comments-list-manga-${id}"></div>
+    </div>`;
+  setTimeout(()=>{const ctx='manga-'+id;if(typeof loadReactions==='function')loadReactions(ctx);if(typeof loadComments==='function')loadComments(ctx);},300);
+}
+
+function handleDetailBm(id){const s=toggleBookmark(id);const btn=document.getElementById('detail-bm');if(btn){btn.classList.toggle('saved',s);btn.innerHTML=s?'♥ Kaydedildi':'♡ Kaydet';}}
+
+// ══ READER ══
+function openReader(mangaId, chId){
+  currentMangaId=mangaId;
+  currentChapterId=chId;
+  const manga=MANGA_DATA.find(m=>m.id===mangaId);
+  if(!manga) return;
+  const chIndex=manga.chapters.findIndex(c=>c.id===chId);
+  const chapter=manga.chapters[chIndex];
+  if(!chapter) return;
+  markRead(mangaId, chId);
+  const hasPrev=chIndex>0;
+  const hasNext=chIndex<manga.chapters.length-1;
+
+  // INTRO CARD
+  const intro=document.getElementById('reader-intro-card');
+  intro.innerHTML='<div style="position:relative;width:100%;background:#000;text-align:center;padding:30px 20px 24px">'
+    +'<button onclick="showPage(\'manga\',\''+mangaId+'\')" style="position:absolute;top:14px;left:14px;background:rgba(255,255,255,.12);border:none;color:#fff;font-size:20px;width:36px;height:36px;border-radius:50%;cursor:pointer">←</button>'
+    +'<img src="'+manga.cover+'" alt="'+manga.title+'" style="width:140px;border-radius:10px;margin:0 auto 16px;box-shadow:0 8px 30px rgba(0,0,0,.6)">'
+    +'<div style="color:#fff;font-family:\'Bebas Neue\',sans-serif;font-size:22px;letter-spacing:1px;margin-bottom:4px">'+manga.title+'</div>'
+    +'<div style="color:var(--accent);font-size:14px;font-weight:800">'+chapter.title+'</div>'
+    +'</div>';
+
+  // SAYFALAR
+  const pages=document.getElementById('reader-pages');
+  pages.innerHTML='';
+  pages.style.cssText='max-width:800px;margin:0 auto;padding:0';
+  chapter.pages.forEach(function(src,i){
+    const wrapper=document.createElement('div');
+    wrapper.style.cssText='width:100%;min-height:400px;background:#111;display:flex;align-items:center;justify-content:center;position:relative';
+    const img=document.createElement('img');
+    img.alt='Sayfa '+(i+1);
+    img.style.cssText='width:100%;display:block';
+    if(i<2){
+      img.src=src;
+      wrapper.style.minHeight='';
+      wrapper.appendChild(img);
+    } else {
+      img.dataset.src=src;
+      img.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+      const obs=new IntersectionObserver(function(entries,o){
+        entries.forEach(function(entry){
+          if(entry.isIntersecting){img.src=img.dataset.src;wrapper.style.minHeight='';o.disconnect();}
+        });
+      },{rootMargin:'300px'});
+      obs.observe(wrapper);
+      wrapper.appendChild(img);
+    }
+    pages.appendChild(wrapper);
+  });
+
+  // END CARD
+  let endHTML='<div style="background:var(--bg2);border-top:1px solid var(--border);padding:30px 20px;text-align:center">'
+    +'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;margin-bottom:8px">Bölüm Sonu 🎉</div>'
+    +'<div style="font-size:13px;color:var(--muted);margin-bottom:20px">'+(hasNext?'Bir sonraki bölüme geçmeye hazır mısın?':'Bu serinin tüm bölümlerini okudun!')+'</div>'
+    +'<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">';
+  if(hasPrev) endHTML+='<button onclick="readerNav(-1)" style="padding:10px 20px;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:\'Nunito\',sans-serif">‹ Önceki Bölüm</button>';
+  if(hasNext) endHTML+='<button onclick="readerNav(1)" style="padding:10px 22px;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;border:none;background:var(--accent);color:#fff;font-family:\'Nunito\',sans-serif">Sonraki Bölüm ›</button>';
+  endHTML+='<button onclick="showPage(\'manga\',\''+mangaId+'\')" style="padding:10px 20px;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:\'Nunito\',sans-serif">↩ Seri Sayfası</button>';
+  endHTML+='</div></div>';
+  // Add comments section to end card
+  const ctx='ch-'+mangaId+'-'+chId;
+  endHTML+='<div class="container" style="padding:20px 14px 80px">'
+    +'<div class="section-title" style="margin-bottom:14px"><h2>💬 Bölüm Yorumları</h2><div class="line"></div></div>'
+    +'<div class="reactions-heading">Ne düşünüyorsun?</div>'
+    +'<div class="reactions-row" id="reactions-'+ctx+'"></div>'
+    +'<div class="comment-input-row">'
+    +'<textarea class="comment-textarea" id="comment-input-'+ctx+'" placeholder="Bu bölüm hakkında yorum yap..."></textarea>'
+    +'<button class="comment-submit-btn" onclick="submitComment(\''+ctx+'\')">Gönder</button>'
+    +'</div>'
+    +'<div id="comments-list-'+ctx+'"></div>'
+    +'</div>';
+  document.getElementById('reader-end-card').innerHTML=endHTML;
+  setTimeout(()=>{if(typeof loadReactions==='function')loadReactions(ctx);if(typeof loadComments==='function')loadComments(ctx);},300);
+}
+
+function goPageBtn(dir){ readerNav(dir); }
+
+function readerNav(dir){
+  const manga=MANGA_DATA.find(m=>m.id===currentMangaId);
+  const idx=manga.chapters.findIndex(c=>c.id===currentChapterId);
+  const next=manga.chapters[idx+dir];
+  if(next){ showPage('reader',currentMangaId,next.id); window.scrollTo(0,0); }
+}
+
+// ══ BOOKMARKS ══
+function renderBookmarks(){
+  const bm=getBookmarks();
+  const data=MANGA_DATA.filter(m=>bm.includes(m.id));
+  document.getElementById('bm-count').textContent=data.length+' seri';
+  document.getElementById('bookmarks-grid').innerHTML=data.length?data.map(m=>renderCard(m,false)).join(''):'<div class="empty-state" style="grid-column:1/-1"><div class="icon">♡</div><p>Henüz kaydettiğin seri yok.</p><br><span style="color:var(--accent);cursor:pointer" onclick="showPage(\'home\')">Manhwa keşfet</span></div>';
+}
+
+// ══ SEARCH ══
+let _searchDebounceTimer=null;
+document.getElementById('searchInput').addEventListener('input',function(){
+  clearTimeout(_searchDebounceTimer);
+  const inputEl=this;
+  _searchDebounceTimer=setTimeout(function(){
+  const rawQ=inputEl.value.trim().toLowerCase();
+  const q=rawQ.replace(/\b(türkçe|turkce|oku|okuyorum|okumak|okudum|okuyalım|manga|manhwa|webtoon|bölüm|bolum)\b/g,'').replace(/\./g,'').replace(/\s+/g,' ').trim();
+  const res=document.getElementById('searchResults');
+  if(q.length<2){res.classList.remove('show');return;}
+  const matches=MANGA_DATA.filter(m=>{
+    if(m.title.toLowerCase().includes(q)) return true;
+    if(m.genres.some(g=>g.toLowerCase().includes(q))) return true;
+    if(m.chapters&&m.chapters.some(c=>{
+      const chClean=c.title.toLowerCase().replace(/bölüm|bolum/g,'').trim();
+      return c.title.toLowerCase().includes(q)||(m.title.toLowerCase()+' '+c.title.toLowerCase()).includes(q)||(m.title.toLowerCase()+' '+chClean).includes(q);
+    })) return true;
+    return false;
+  }).slice(0,6);
+  if(!matches.length){res.classList.remove('show');return;}
+  res.innerHTML=matches.map(m=>{
+    const matchedChapter=m.chapters&&m.chapters.find(c=>{
+      const chClean=c.title.toLowerCase().replace(/bölüm|bolum/g,'').trim();
+      return c.title.toLowerCase().includes(q)||(m.title.toLowerCase()+' '+c.title.toLowerCase()).includes(q)||(m.title.toLowerCase()+' '+chClean).includes(q);
+    });
+    const meta=matchedChapter&&!m.title.toLowerCase().includes(q)?`${m.title} · ${matchedChapter.title}`:m.genres.slice(0,2).join(' · ');
+    const target=matchedChapter&&!m.title.toLowerCase().includes(q)?`openReader('${m.id}',${matchedChapter.id})`:`showPage('manga','${m.id}')`;
+    return`<div class="search-item" onclick="${target};document.getElementById('searchInput').value='';document.getElementById('searchResults').classList.remove('show')">
+    <img src="${m.cover}" alt="${m.title}">
+    <div><div class="search-item-title">${m.title}</div><div class="search-item-meta">${meta}</div></div>
+  </div>`;
+  }).join('');
+  res.classList.add('show');
+  },250);
+});
+document.addEventListener('click',function(e){if(!e.target.closest('.search-wrap')) document.getElementById('searchResults').classList.remove('show');});
+
+
+// ══ HEADER SCROLL HIDE ══
+(function(){
+  var lastY=0;
+  var header=document.querySelector('.site-header');
+  window.addEventListener('scroll',function(){
+    var y=window.scrollY;
+    if(y>lastY && y>80){header.classList.add('hidden');}
+    else{header.classList.remove('hidden');}
+    lastY=y;
+  },{passive:true});
+})();
+
+// ══ BACK TO TOP BUTTON ══
+(function(){
+  var btn=document.getElementById('back-to-top-btn');
+  if(!btn)return;
+  window.addEventListener('scroll',function(){
+    if(window.scrollY>300){btn.classList.add('visible');}
+    else{btn.classList.remove('visible');}
+  },{passive:true});
+  btn.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
+})();
+
+// ══ AUTO SCROLL ══
+var _autoScrollTimer=null;
+var _autoScrollSpeed=3;
+var _autoScrollActive=false;
+
+function _autoScrollStep(){
+  if(!_autoScrollActive)return;
+  window.scrollBy(0,_autoScrollSpeed);
+  _autoScrollTimer=requestAnimationFrame(_autoScrollStep);
+}
+
+window.toggleAutoScroll=function(){
+  _autoScrollActive=!_autoScrollActive;
+  var bar=document.getElementById('autoscroll-bar');
+  if(_autoScrollActive){
+    _autoScrollStep();
+    if(bar)bar.classList.add('active');
+  }else{
+    cancelAnimationFrame(_autoScrollTimer);
+    if(bar)bar.classList.remove('active');
+  }
+};
+
+window.setAutoScrollSpeed=function(v){
+  _autoScrollSpeed=parseFloat(v);
+  document.getElementById('autoscroll-speed-val').textContent=v;
+};
+
+// Hide autoscroll bar when scrolling down past threshold
+(function(){
+  var bar=document.getElementById('autoscroll-bar');
+  if(!bar)return;
+  var lastScrollY=window.scrollY;
+  window.addEventListener('scroll',function(){
+    var y=window.scrollY;
+    if(y<100){
+      bar.style.opacity='1';
+      bar.style.pointerEvents='auto';
+    }else if(y>lastScrollY+30 && !_autoScrollActive){
+      bar.style.opacity='0';
+      bar.style.pointerEvents='none';
+    }else if(y<lastScrollY-10){
+      bar.style.opacity='1';
+      bar.style.pointerEvents='auto';
+    }
+    lastScrollY=y;
+  },{passive:true});
+})();
+
+// ══ INIT ══
+routeFromUrl();
+</script>
+</body>
+</html>
